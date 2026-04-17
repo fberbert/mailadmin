@@ -31,7 +31,7 @@ export function AppShell({
       <div className="mx-auto grid min-h-screen max-w-[1680px] grid-cols-1 gap-6 p-4 lg:grid-cols-[280px_minmax(0,1fr)] lg:p-6">
         <aside className="rounded-[2rem] border border-stone-200 bg-stone-950 px-5 py-6 text-stone-100 shadow-2xl shadow-stone-950/15">
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-400 text-stone-950">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500 text-stone-950">
               <KeyRound className="size-5" />
             </div>
             <div>
@@ -51,7 +51,7 @@ export function AppShell({
                   className={cn(
                     "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
                     active
-                      ? "bg-amber-400 text-stone-950 shadow-lg shadow-black/20"
+                      ? "bg-amber-500 text-stone-950 shadow-lg shadow-black/20"
                       : "text-stone-300 hover:bg-white/8 hover:text-white",
                   )}
                 >

@@ -2,7 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { createSenderAclAction, deleteSenderAclAction } from "@/app/(dashboard)/actions";
 import {
+  ActionIconButton,
   Field,
+  FormActionSlot,
   Notice,
   PageHeader,
   PaginationNav,
@@ -14,6 +16,7 @@ import {
 } from "@/components/ui";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -77,9 +80,9 @@ export default async function SenderAclPage({ searchParams }: Props) {
           <Field label="Allowed email" htmlFor="allowedEmail">
             <TextInput id="allowedEmail" name="allowedEmail" type="email" placeholder="postmaster@example.com" required />
           </Field>
-          <div className="flex items-end">
+          <FormActionSlot>
             <SubmitButton className="w-full">Add sender rule</SubmitButton>
-          </div>
+          </FormActionSlot>
         </form>
       </Surface>
 
@@ -103,11 +106,11 @@ export default async function SenderAclPage({ searchParams }: Props) {
             <Field label="Search" htmlFor="query-filter">
               <TextInput id="query-filter" name="q" defaultValue={query} placeholder="Filter by mailbox or allowed email" />
             </Field>
-            <div className="flex items-end">
+            <FormActionSlot>
               <SubmitButton variant="secondary" className="w-full">
                 Filter
               </SubmitButton>
-            </div>
+            </FormActionSlot>
           </form>
         </div>
         <div className="overflow-x-auto">
@@ -132,7 +135,12 @@ export default async function SenderAclPage({ searchParams }: Props) {
                     <form action={deleteSenderAclAction}>
                       <input type="hidden" name="mailboxEmail" value={rule.mailboxEmail} />
                       <input type="hidden" name="allowedEmail" value={rule.allowedEmail} />
-                      <SubmitButton variant="danger">Delete</SubmitButton>
+                      <ActionIconButton
+                        variant="danger"
+                        label={`Delete sender rule ${rule.allowedEmail} for ${rule.mailboxEmail}`}
+                      >
+                        <Trash2 className="size-4" />
+                      </ActionIconButton>
                     </form>
                   </td>
                 </tr>

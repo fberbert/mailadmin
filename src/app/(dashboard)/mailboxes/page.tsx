@@ -6,7 +6,9 @@ import {
   updateMailboxPasswordAction,
 } from "@/app/(dashboard)/actions";
 import {
+  ActionIconButton,
   Field,
+  FormActionSlot,
   Notice,
   PageHeader,
   PaginationNav,
@@ -19,6 +21,7 @@ import {
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { formatBytes } from "@/lib/utils";
+import { RotateCw, Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -95,11 +98,11 @@ export default async function MailboxesPage({ searchParams }: Props) {
             <Field label="Search" htmlFor="query-filter">
               <TextInput id="query-filter" name="q" defaultValue={query} placeholder="Filter by mailbox or local-part" />
             </Field>
-            <div className="flex items-end">
+            <FormActionSlot>
               <SubmitButton variant="secondary" className="w-full">
                 Filter
               </SubmitButton>
-            </div>
+            </FormActionSlot>
           </form>
         </div>
         <div className="overflow-x-auto">
@@ -135,13 +138,17 @@ export default async function MailboxesPage({ searchParams }: Props) {
                         className="h-10 flex-1 rounded-xl"
                         required
                       />
-                      <SubmitButton className="h-10 rounded-xl px-3">Rotate</SubmitButton>
+                      <ActionIconButton label={`Rotate password for ${mailbox.email}`}>
+                        <RotateCw className="size-4" />
+                      </ActionIconButton>
                     </form>
                   </td>
                   <td className="px-6 py-4">
                     <form action={deleteMailboxAction}>
                       <input type="hidden" name="email" value={mailbox.email} />
-                      <SubmitButton variant="danger">Delete</SubmitButton>
+                      <ActionIconButton variant="danger" label={`Delete mailbox ${mailbox.email}`}>
+                        <Trash2 className="size-4" />
+                      </ActionIconButton>
                     </form>
                   </td>
                 </tr>

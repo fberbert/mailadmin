@@ -25,7 +25,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.28),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(251,191,36,0.18),_transparent_24%)]" />
           <div className="relative flex h-full flex-col justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-400 text-stone-950">
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500 text-stone-950">
                 <KeyRound className="size-5" />
               </div>
               <div>
@@ -36,14 +36,14 @@ export default async function LoginPage({ searchParams }: Props) {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.22em] text-stone-300">
                 <ShieldCheck className="size-4" />
-                built for delegated ops
+                central mail operations
               </div>
               <h1 className="max-w-lg text-4xl font-semibold tracking-tight">
-                Domains, mailboxes, aliases and sender policy in one surface.
+                Manage domains, inboxes and routing from one place.
               </h1>
               <p className="max-w-xl text-base leading-7 text-stone-300">
-                Local development runs in database mode with Docker Compose. Production can switch to
-                CLI mode and drive the real <code>mailadmin</code> utility on the mail host.
+                Use the panel to create mailboxes, manage aliases, control send-as permissions and
+                keep your mail server organized without touching the shell.
               </p>
             </div>
           </div>
@@ -59,13 +59,13 @@ export default async function LoginPage({ searchParams }: Props) {
                 Sign in to mailadmin
               </h2>
               <p className="mt-3 text-sm leading-6 text-stone-600">
-                Credentials are controlled by <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code>.
+                Access the control panel for domains, mailboxes, aliases and sending permissions.
               </p>
             </div>
 
             {error ? (
               <div className="mb-6">
-                <Notice tone="error">Invalid credentials. Check your environment variables and try again.</Notice>
+                <Notice tone="error">Invalid credentials. Check your username and password and try again.</Notice>
               </div>
             ) : null}
 

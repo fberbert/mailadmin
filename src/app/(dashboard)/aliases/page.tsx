@@ -2,7 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { createAliasAction, deleteAliasAction } from "@/app/(dashboard)/actions";
 import {
+  ActionIconButton,
   Field,
+  FormActionSlot,
   Notice,
   PageHeader,
   PaginationNav,
@@ -14,6 +16,7 @@ import {
 } from "@/components/ui";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -80,9 +83,9 @@ export default async function AliasesPage({ searchParams }: Props) {
               ))}
             </datalist>
           </Field>
-          <div className="flex items-end">
+          <FormActionSlot>
             <SubmitButton className="w-full">Create alias</SubmitButton>
-          </div>
+          </FormActionSlot>
         </form>
       </Surface>
 
@@ -106,11 +109,11 @@ export default async function AliasesPage({ searchParams }: Props) {
             <Field label="Search" htmlFor="query-filter">
               <TextInput id="query-filter" name="q" defaultValue={query} placeholder="Filter by source or destination" />
             </Field>
-            <div className="flex items-end">
+            <FormActionSlot>
               <SubmitButton variant="secondary" className="w-full">
                 Filter
               </SubmitButton>
-            </div>
+            </FormActionSlot>
           </form>
         </div>
         <div className="overflow-x-auto">
@@ -136,7 +139,9 @@ export default async function AliasesPage({ searchParams }: Props) {
                   <td className="px-6 py-4">
                     <form action={deleteAliasAction}>
                       <input type="hidden" name="sourceEmail" value={alias.sourceEmail} />
-                      <SubmitButton variant="danger">Delete</SubmitButton>
+                      <ActionIconButton variant="danger" label={`Delete alias ${alias.sourceEmail}`}>
+                        <Trash2 className="size-4" />
+                      </ActionIconButton>
                     </form>
                   </td>
                 </tr>

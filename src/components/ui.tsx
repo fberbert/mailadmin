@@ -49,6 +49,16 @@ export function Surface({
   );
 }
 
+export function FormActionSlot({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("flex items-start pt-7", className)}>{children}</div>;
+}
+
 export function StatCard({
   label,
   value,
@@ -155,6 +165,40 @@ export function SubmitButton({
       )}
     >
       {children}
+    </button>
+  );
+}
+
+export function ActionIconButton({
+  children,
+  label,
+  variant = "secondary",
+  className,
+}: {
+  children: ReactNode;
+  label: string;
+  variant?: "primary" | "secondary" | "danger";
+  className?: string;
+}) {
+  const variants = {
+    primary: "bg-stone-950 text-white hover:bg-stone-800",
+    secondary: "bg-stone-100 text-stone-900 hover:bg-stone-200",
+    danger: "bg-red-600 text-white hover:bg-red-500",
+  };
+
+  return (
+    <button
+      type="submit"
+      aria-label={label}
+      title={label}
+      className={cn(
+        "inline-flex size-10 items-center justify-center rounded-xl text-sm font-semibold transition",
+        variants[variant],
+        className,
+      )}
+    >
+      {children}
+      <span className="sr-only">{label}</span>
     </button>
   );
 }

@@ -2,7 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { createDomainAction, deleteDomainAction } from "@/app/(dashboard)/actions";
 import {
+  ActionIconButton,
   Field,
+  FormActionSlot,
   Notice,
   PageHeader,
   PaginationNav,
@@ -14,6 +16,7 @@ import {
 } from "@/components/ui";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -58,9 +61,9 @@ export default async function DomainsPage({ searchParams }: Props) {
           <Field label="Domain name" htmlFor="domain-name" hint="Example: mestrefabio.com">
             <TextInput id="domain-name" name="name" placeholder="example.com" required />
           </Field>
-          <div className="flex items-end">
+          <FormActionSlot>
             <SubmitButton className="w-full">Create or reactivate</SubmitButton>
-          </div>
+          </FormActionSlot>
         </form>
       </Surface>
 
@@ -91,11 +94,11 @@ export default async function DomainsPage({ searchParams }: Props) {
                 placeholder="Filter by name or counts"
               />
             </Field>
-            <div className="flex items-end">
+            <FormActionSlot>
               <SubmitButton variant="secondary" className="w-full">
                 Filter
               </SubmitButton>
-            </div>
+            </FormActionSlot>
           </form>
         </div>
         <div className="overflow-x-auto">
@@ -121,7 +124,9 @@ export default async function DomainsPage({ searchParams }: Props) {
                   <td className="px-6 py-4">
                     <form action={deleteDomainAction}>
                       <input type="hidden" name="name" value={record.name} />
-                      <SubmitButton variant="danger">Delete</SubmitButton>
+                      <ActionIconButton variant="danger" label={`Delete domain ${record.name}`}>
+                        <Trash2 className="size-4" />
+                      </ActionIconButton>
                     </form>
                   </td>
                 </tr>
