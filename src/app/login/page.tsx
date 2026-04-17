@@ -3,6 +3,7 @@ import { KeyRound, ShieldCheck } from "lucide-react";
 
 import { loginAction } from "@/app/login/actions";
 import { Notice, SubmitButton, TextInput } from "@/components/ui";
+import { PasswordInput } from "@/components/password-input";
 import { getSession } from "@/lib/auth";
 
 type Props = {
@@ -81,10 +82,9 @@ export default async function LoginPage({ searchParams }: Props) {
                 <label className="text-sm font-medium text-stone-800" htmlFor="password">
                   Password
                 </label>
-                <TextInput
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   required

@@ -56,7 +56,13 @@ export function FormActionSlot({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("flex items-start pt-7", className)}>{children}</div>;
+  return (
+    <div className={cn("grid self-start gap-2 text-sm font-medium text-stone-800", className)}>
+      <span className="invisible select-none">Action</span>
+      {children}
+      <span className="min-h-4 text-xs font-normal invisible">helper text</span>
+    </div>
+  );
 }
 
 export function StatCard({
@@ -105,7 +111,9 @@ export function Field({
     <label className="grid gap-2 text-sm font-medium text-stone-800" htmlFor={htmlFor}>
       <span>{label}</span>
       {children}
-      {hint ? <span className="text-xs font-normal text-stone-500">{hint}</span> : null}
+      <span className={cn("min-h-4 text-xs font-normal", hint ? "text-stone-500" : "invisible")}>
+        {hint ?? "helper text"}
+      </span>
     </label>
   );
 }

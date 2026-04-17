@@ -31,6 +31,7 @@ export default async function SenderAclPage({ searchParams }: Props) {
     mailAdminProvider.listSenderAcl(),
     mailAdminProvider.listMailboxes(),
   ]);
+  const currentHref = buildListHref("/sender-acl", { domain, query, page });
   const domainOptions = Array.from(new Set(mailboxes.map((record) => record.domainName))).sort();
   const filteredRules = rules.filter((record) => {
     const mailboxDomain = record.mailboxEmail.split("@")[1] ?? "";
@@ -61,7 +62,8 @@ export default async function SenderAclPage({ searchParams }: Props) {
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Allow send-as</h2>
-        <form action={createSenderAclAction} className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px]">
+        <form action={createSenderAclAction} className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px]">
+          <input type="hidden" name="returnTo" value={currentHref} />
           <Field label="Mailbox" htmlFor="mailboxEmail">
             <input
               id="mailboxEmail"
@@ -92,7 +94,7 @@ export default async function SenderAclPage({ searchParams }: Props) {
             <h2 className="text-lg font-semibold text-stone-950">Sender ACL rules</h2>
             <p className="text-sm text-stone-500">{filteredRules.length} filtered record(s)</p>
           </div>
-          <form className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
+          <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
               <SelectInput id="domain-filter" name="domain" defaultValue={domain}>
                 <option value="">All domains</option>
@@ -133,6 +135,7 @@ export default async function SenderAclPage({ searchParams }: Props) {
                   </td>
                   <td className="px-6 py-4">
                     <form action={deleteSenderAclAction}>
+                      <input type="hidden" name="returnTo" value={currentHref} />
                       <input type="hidden" name="mailboxEmail" value={rule.mailboxEmail} />
                       <input type="hidden" name="allowedEmail" value={rule.allowedEmail} />
                       <ActionIconButton

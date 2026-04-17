@@ -28,6 +28,7 @@ export default async function DomainsPage({ searchParams }: Props) {
   const { success, error, domain, query, page } = await readListParams(searchParams);
   const mailAdminProvider = await getMailAdminProvider();
   const domains = await mailAdminProvider.listDomains();
+  const currentHref = buildListHref("/domains", { domain, query, page });
   const filteredDomains = domains.filter((record) => {
     const matchesDomain = !domain || record.name === domain;
     const needle = query.toLowerCase();
@@ -57,7 +58,8 @@ export default async function DomainsPage({ searchParams }: Props) {
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Add a domain</h2>
-        <form action={createDomainAction} className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+        <form action={createDomainAction} className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+          <input type="hidden" name="returnTo" value={currentHref} />
           <Field label="Domain name" htmlFor="domain-name" hint="Example: mestrefabio.com">
             <TextInput id="domain-name" name="name" placeholder="example.com" required />
           </Field>
@@ -75,7 +77,7 @@ export default async function DomainsPage({ searchParams }: Props) {
               <p className="text-sm text-stone-500">{filteredDomains.length} filtered record(s)</p>
             </div>
           </div>
-          <form className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
+          <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
               <SelectInput id="domain-filter" name="domain" defaultValue={domain}>
                 <option value="">All domains</option>
@@ -123,6 +125,7 @@ export default async function DomainsPage({ searchParams }: Props) {
                   <td className="px-6 py-4 text-stone-600">{record.aliasCount}</td>
                   <td className="px-6 py-4">
                     <form action={deleteDomainAction}>
+                      <input type="hidden" name="returnTo" value={currentHref} />
                       <input type="hidden" name="name" value={record.name} />
                       <ActionIconButton variant="danger" label={`Delete domain ${record.name}`}>
                         <Trash2 className="size-4" />

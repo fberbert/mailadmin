@@ -18,6 +18,7 @@ import {
   Surface,
   TextInput,
 } from "@/components/ui";
+import { PasswordInput } from "@/components/password-input";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { formatBytes } from "@/lib/utils";
@@ -33,6 +34,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
   const { success, error, domain, query, page } = await readListParams(searchParams);
   const mailAdminProvider = await getMailAdminProvider();
   const mailboxes = await mailAdminProvider.listMailboxes();
+  const currentHref = buildListHref("/mailboxes", { domain, query, page });
   const domainOptions = Array.from(new Set(mailboxes.map((record) => record.domainName))).sort();
   const filteredMailboxes = mailboxes.filter((record) => {
     const matchesDomain = !domain || record.domainName === domain;
@@ -62,19 +64,23 @@ export default async function MailboxesPage({ searchParams }: Props) {
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Create mailbox</h2>
-        <form action={createMailboxAction} className="mt-5 grid gap-4 md:grid-cols-3">
+        <form
+          action={createMailboxAction}
+          className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px]"
+        >
+          <input type="hidden" name="returnTo" value={currentHref} />
           <Field label="Email address" htmlFor="mailbox-email">
             <TextInput id="mailbox-email" name="email" type="email" placeholder="fabio@example.com" required />
           </Field>
           <Field label="Password" htmlFor="mailbox-password">
-            <TextInput id="mailbox-password" name="password" type="password" placeholder="temporary password" required />
+            <PasswordInput id="mailbox-password" name="password" placeholder="temporary password" required />
           </Field>
           <Field label="Quota bytes" htmlFor="mailbox-quota" hint="Leave empty for unlimited.">
             <TextInput id="mailbox-quota" name="quotaBytes" inputMode="numeric" placeholder="1073741824" />
           </Field>
-          <div className="md:col-span-3">
-            <SubmitButton>Create mailbox</SubmitButton>
-          </div>
+          <FormActionSlot>
+            <SubmitButton className="w-full">Create mailbox</SubmitButton>
+          </FormActionSlot>
         </form>
       </Surface>
 
@@ -84,7 +90,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
             <h2 className="text-lg font-semibold text-stone-950">Mailbox catalog</h2>
             <p className="text-sm text-stone-500">{filteredMailboxes.length} filtered record(s)</p>
           </div>
-          <form className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
+          <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
               <SelectInput id="domain-filter" name="domain" defaultValue={domain}>
                 <option value="">All domains</option>
@@ -130,10 +136,10 @@ export default async function MailboxesPage({ searchParams }: Props) {
                   </td>
                   <td className="px-6 py-4">
                     <form action={updateMailboxPasswordAction} className="flex min-w-60 gap-2">
+                      <input type="hidden" name="returnTo" value={currentHref} />
                       <input type="hidden" name="email" value={mailbox.email} />
-                      <TextInput
+                      <PasswordInput
                         name="password"
-                        type="password"
                         placeholder="new password"
                         className="h-10 flex-1 rounded-xl"
                         required
@@ -145,6 +151,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
                   </td>
                   <td className="px-6 py-4">
                     <form action={deleteMailboxAction}>
+                      <input type="hidden" name="returnTo" value={currentHref} />
                       <input type="hidden" name="email" value={mailbox.email} />
                       <ActionIconButton variant="danger" label={`Delete mailbox ${mailbox.email}`}>
                         <Trash2 className="size-4" />

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import {
@@ -16,37 +17,63 @@ function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function failure(pathname: string, error: unknown) {
+function buildRedirectTarget(returnTo: string | undefined, fallbackPath: string) {
+  const target = returnTo && returnTo.startsWith("/") ? returnTo : fallbackPath;
+  return new URL(target, "http://mailadmin.local");
+}
+
+function redirectWithStatus(
+  returnTo: string | undefined,
+  fallbackPath: string,
+  key: "success" | "error",
+  value: string,
+) {
+  const url = buildRedirectTarget(returnTo, fallbackPath);
+  url.searchParams.set(key, value);
+  redirect(`${url.pathname}${url.search}`);
+}
+
+function failure(pathname: string, returnTo: string | undefined, error: unknown) {
+  if (isRedirectError(error)) {
+    throw error;
+  }
+
   const message = error instanceof Error ? error.message : "Unexpected error";
-  redirect(`${pathname}?error=${encodeURIComponent(message)}`);
+  redirectWithStatus(returnTo, pathname, "error", message);
 }
 
 export async function createDomainAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = domainSchema.parse({ name: getString(formData, "name") });
     await mailAdminProvider.createDomain(data);
     revalidatePath("/");
     revalidatePath("/domains");
-    redirect("/domains?success=domain-created");
+    redirectWithStatus(returnTo, "/domains", "success", "domain-created");
   } catch (error) {
-    failure("/domains", error);
+    failure("/domains", returnTo, error);
   }
 }
 
 export async function deleteDomainAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteDomain({ name: getString(formData, "name") });
     revalidatePath("/");
     revalidatePath("/domains");
-    redirect("/domains?success=domain-deleted");
+    redirectWithStatus(returnTo, "/domains", "success", "domain-deleted");
   } catch (error) {
-    failure("/domains", error);
+    failure("/domains", returnTo, error);
   }
 }
 
 export async function createMailboxAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = mailboxSchema.parse({
@@ -57,13 +84,15 @@ export async function createMailboxAction(formData: FormData) {
     await mailAdminProvider.createMailbox(data);
     revalidatePath("/");
     revalidatePath("/mailboxes");
-    redirect("/mailboxes?success=mailbox-created");
+    redirectWithStatus(returnTo, "/mailboxes", "success", "mailbox-created");
   } catch (error) {
-    failure("/mailboxes", error);
+    failure("/mailboxes", returnTo, error);
   }
 }
 
 export async function updateMailboxPasswordAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = passwordSchema.parse({
@@ -72,26 +101,30 @@ export async function updateMailboxPasswordAction(formData: FormData) {
     });
     await mailAdminProvider.updateMailboxPassword(data);
     revalidatePath("/mailboxes");
-    redirect("/mailboxes?success=password-updated");
+    redirectWithStatus(returnTo, "/mailboxes", "success", "password-updated");
   } catch (error) {
-    failure("/mailboxes", error);
+    failure("/mailboxes", returnTo, error);
   }
 }
 
 export async function deleteMailboxAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteMailbox({ email: getString(formData, "email") });
     revalidatePath("/");
     revalidatePath("/mailboxes");
     revalidatePath("/sender-acl");
-    redirect("/mailboxes?success=mailbox-deleted");
+    redirectWithStatus(returnTo, "/mailboxes", "success", "mailbox-deleted");
   } catch (error) {
-    failure("/mailboxes", error);
+    failure("/mailboxes", returnTo, error);
   }
 }
 
 export async function createAliasAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = aliasSchema.parse({
@@ -103,25 +136,29 @@ export async function createAliasAction(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/aliases");
     revalidatePath("/sender-acl");
-    redirect("/aliases?success=alias-created");
+    redirectWithStatus(returnTo, "/aliases", "success", "alias-created");
   } catch (error) {
-    failure("/aliases", error);
+    failure("/aliases", returnTo, error);
   }
 }
 
 export async function deleteAliasAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteAlias({ sourceEmail: getString(formData, "sourceEmail") });
     revalidatePath("/");
     revalidatePath("/aliases");
-    redirect("/aliases?success=alias-deleted");
+    redirectWithStatus(returnTo, "/aliases", "success", "alias-deleted");
   } catch (error) {
-    failure("/aliases", error);
+    failure("/aliases", returnTo, error);
   }
 }
 
 export async function createSenderAclAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = senderAclSchema.parse({
@@ -131,13 +168,15 @@ export async function createSenderAclAction(formData: FormData) {
     await mailAdminProvider.createSenderAcl(data);
     revalidatePath("/");
     revalidatePath("/sender-acl");
-    redirect("/sender-acl?success=sender-rule-created");
+    redirectWithStatus(returnTo, "/sender-acl", "success", "sender-rule-created");
   } catch (error) {
-    failure("/sender-acl", error);
+    failure("/sender-acl", returnTo, error);
   }
 }
 
 export async function deleteSenderAclAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
   try {
     const mailAdminProvider = await getMailAdminProvider();
     const data = senderAclSchema.parse({
@@ -147,8 +186,8 @@ export async function deleteSenderAclAction(formData: FormData) {
     await mailAdminProvider.deleteSenderAcl(data);
     revalidatePath("/");
     revalidatePath("/sender-acl");
-    redirect("/sender-acl?success=sender-rule-deleted");
+    redirectWithStatus(returnTo, "/sender-acl", "success", "sender-rule-deleted");
   } catch (error) {
-    failure("/sender-acl", error);
+    failure("/sender-acl", returnTo, error);
   }
 }

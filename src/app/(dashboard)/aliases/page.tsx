@@ -31,6 +31,7 @@ export default async function AliasesPage({ searchParams }: Props) {
     mailAdminProvider.listAliases(),
     mailAdminProvider.listMailboxes(),
   ]);
+  const currentHref = buildListHref("/aliases", { domain, query, page });
   const domainOptions = Array.from(
     new Set([...aliases.map((record) => record.domainName), ...mailboxes.map((record) => record.domainName)]),
   ).sort();
@@ -62,7 +63,8 @@ export default async function AliasesPage({ searchParams }: Props) {
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Create alias</h2>
-        <form action={createAliasAction} className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px]">
+        <form action={createAliasAction} className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px]">
+          <input type="hidden" name="returnTo" value={currentHref} />
           <Field label="Source email" htmlFor="source-email">
             <TextInput id="source-email" name="sourceEmail" type="email" placeholder="contato@example.com" required />
           </Field>
@@ -95,7 +97,7 @@ export default async function AliasesPage({ searchParams }: Props) {
             <h2 className="text-lg font-semibold text-stone-950">Alias catalog</h2>
             <p className="text-sm text-stone-500">{filteredAliases.length} filtered record(s)</p>
           </div>
-          <form className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
+          <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
               <SelectInput id="domain-filter" name="domain" defaultValue={domain}>
                 <option value="">All domains</option>
@@ -138,6 +140,7 @@ export default async function AliasesPage({ searchParams }: Props) {
                   </td>
                   <td className="px-6 py-4">
                     <form action={deleteAliasAction}>
+                      <input type="hidden" name="returnTo" value={currentHref} />
                       <input type="hidden" name="sourceEmail" value={alias.sourceEmail} />
                       <ActionIconButton variant="danger" label={`Delete alias ${alias.sourceEmail}`}>
                         <Trash2 className="size-4" />
