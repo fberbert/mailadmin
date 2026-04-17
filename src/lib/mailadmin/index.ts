@@ -1,6 +1,12 @@
 import { appEnv } from "@/lib/env";
-import { cliProvider } from "@/lib/mailadmin/cli-provider";
-import { databaseProvider } from "@/lib/mailadmin/database-provider";
+import type { MailAdminProvider } from "@/lib/mailadmin/types";
 
-export const mailAdminProvider =
-  appEnv.driver === "cli" ? cliProvider : databaseProvider;
+export async function getMailAdminProvider(): Promise<MailAdminProvider> {
+  if (appEnv.driver === "cli") {
+    const { cliProvider } = await import("@/lib/mailadmin/cli-provider");
+    return cliProvider;
+  }
+
+  const { databaseProvider } = await import("@/lib/mailadmin/database-provider");
+  return databaseProvider;
+}

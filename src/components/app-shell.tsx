@@ -51,7 +51,7 @@ export function AppShell({
                   className={cn(
                     "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
                     active
-                      ? "bg-white text-stone-950 shadow-lg shadow-black/20"
+                      ? "bg-amber-400 text-stone-950 shadow-lg shadow-black/20"
                       : "text-stone-300 hover:bg-white/8 hover:text-white",
                   )}
                 >

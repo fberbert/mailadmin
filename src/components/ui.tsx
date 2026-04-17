@@ -112,6 +112,24 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
+export function SelectInput({
+  className,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
+  return (
+    <select
+      {...props}
+      className={cn(
+        "h-11 rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100",
+        className,
+      )}
+    >
+      {children}
+    </select>
+  );
+}
+
 export function SubmitButton({
   children,
   variant = "primary",
@@ -166,5 +184,69 @@ export function MiniLink({ href, children }: { href: string; children: ReactNode
     <Link href={href} className="text-sm font-medium text-amber-700 transition hover:text-amber-800">
       {children}
     </Link>
+  );
+}
+
+export function PaginationNav({
+  pathname,
+  currentPage,
+  totalPages,
+  buildHref,
+}: {
+  pathname: string;
+  currentPage: number;
+  totalPages: number;
+  buildHref: (page: number) => string;
+}) {
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 px-6 py-4">
+      <div className="text-sm text-stone-500">
+        Page {currentPage} of {totalPages}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={buildHref(Math.max(1, currentPage - 1))}
+          className={cn(
+            "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
+            currentPage === 1
+              ? "pointer-events-none bg-stone-100 text-stone-400"
+              : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+          )}
+        >
+          Previous
+        </Link>
+        {pages.map((page) => (
+          <Link
+            key={`${pathname}-${page}`}
+            href={buildHref(page)}
+            className={cn(
+              "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
+              page === currentPage
+                ? "bg-stone-950 text-white"
+                : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+            )}
+          >
+            {page}
+          </Link>
+        ))}
+        <Link
+          href={buildHref(Math.min(totalPages, currentPage + 1))}
+          className={cn(
+            "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
+            currentPage === totalPages
+              ? "pointer-events-none bg-stone-100 text-stone-400"
+              : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+          )}
+        >
+          Next
+        </Link>
+      </div>
+    </div>
   );
 }

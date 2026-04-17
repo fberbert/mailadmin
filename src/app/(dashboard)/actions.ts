@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { mailAdminProvider } from "@/lib/mailadmin";
+import { getMailAdminProvider } from "@/lib/mailadmin";
 import {
   aliasSchema,
   domainSchema,
@@ -23,6 +23,7 @@ function failure(pathname: string, error: unknown) {
 
 export async function createDomainAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = domainSchema.parse({ name: getString(formData, "name") });
     await mailAdminProvider.createDomain(data);
     revalidatePath("/");
@@ -35,6 +36,7 @@ export async function createDomainAction(formData: FormData) {
 
 export async function deleteDomainAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteDomain({ name: getString(formData, "name") });
     revalidatePath("/");
     revalidatePath("/domains");
@@ -46,6 +48,7 @@ export async function deleteDomainAction(formData: FormData) {
 
 export async function createMailboxAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = mailboxSchema.parse({
       email: getString(formData, "email"),
       password: getString(formData, "password"),
@@ -62,6 +65,7 @@ export async function createMailboxAction(formData: FormData) {
 
 export async function updateMailboxPasswordAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = passwordSchema.parse({
       email: getString(formData, "email"),
       password: getString(formData, "password"),
@@ -76,6 +80,7 @@ export async function updateMailboxPasswordAction(formData: FormData) {
 
 export async function deleteMailboxAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteMailbox({ email: getString(formData, "email") });
     revalidatePath("/");
     revalidatePath("/mailboxes");
@@ -88,6 +93,7 @@ export async function deleteMailboxAction(formData: FormData) {
 
 export async function createAliasAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = aliasSchema.parse({
       sourceEmail: getString(formData, "sourceEmail"),
       destination: getString(formData, "destination"),
@@ -105,6 +111,7 @@ export async function createAliasAction(formData: FormData) {
 
 export async function deleteAliasAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     await mailAdminProvider.deleteAlias({ sourceEmail: getString(formData, "sourceEmail") });
     revalidatePath("/");
     revalidatePath("/aliases");
@@ -116,6 +123,7 @@ export async function deleteAliasAction(formData: FormData) {
 
 export async function createSenderAclAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = senderAclSchema.parse({
       mailboxEmail: getString(formData, "mailboxEmail"),
       allowedEmail: getString(formData, "allowedEmail"),
@@ -131,6 +139,7 @@ export async function createSenderAclAction(formData: FormData) {
 
 export async function deleteSenderAclAction(formData: FormData) {
   try {
+    const mailAdminProvider = await getMailAdminProvider();
     const data = senderAclSchema.parse({
       mailboxEmail: getString(formData, "mailboxEmail"),
       allowedEmail: getString(formData, "allowedEmail"),

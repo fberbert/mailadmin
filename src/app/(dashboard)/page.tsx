@@ -3,9 +3,10 @@ export const dynamic = "force-dynamic";
 import { ArrowRight, Mail, Send, Shield, Globe2 } from "lucide-react";
 
 import { MiniLink, PageHeader, StatCard, Surface } from "@/components/ui";
-import { mailAdminProvider } from "@/lib/mailadmin";
+import { getMailAdminProvider } from "@/lib/mailadmin";
 
 export default async function DashboardPage() {
+  const mailAdminProvider = await getMailAdminProvider();
   const [metrics, domains, mailboxes, aliases, senderRules] = await Promise.all([
     mailAdminProvider.getDashboardMetrics(),
     mailAdminProvider.listDomains(),

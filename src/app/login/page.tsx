@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: Props) {
               </div>
               <div>
                 <div className="text-lg font-semibold">mailadmin panel</div>
-                <div className="text-sm text-stone-400">Next.js control plane for your mailserver</div>
+                <div className="text-sm text-stone-400">Control plane for your mailserver</div>
               </div>
             </div>
             <div className="space-y-6">
