@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Domain {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(191)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  mailboxes Mailbox[]
+  aliases   Alias[]
+
+  @@map("domains")
+}
+
+model Mailbox {
+  id         Int         @id @default(autoincrement())
+  domainId   Int         @map("domain_id")
+  localPart  String      @map("local_part") @db.VarChar(191)
+  email      String      @unique @db.VarChar(191)
+  password   String      @db.Text
+  active     Boolean     @default(true)
+  quotaBytes BigInt?     @map("quota_bytes")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  domain     Domain      @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  senderAcl  SenderAcl[]
+
+  @@unique([domainId, localPart])
+  @@map("mailboxes")
+}
+
+model Alias {
+  id              Int      @id @default(autoincrement())
+  domainId        Int      @map("domain_id")
+  sourceLocalPart String   @map("source_local_part") @db.VarChar(191)
+  sourceEmail     String   @unique @map("source_email") @db.VarChar(191)
+  destination     String   @db.Text
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  domain          Domain   @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  @@unique([domainId, sourceLocalPart])
+  @@map("aliases")
+}
+
+model SenderAcl {
+  id           Int      @id @default(autoincrement())
+  mailboxId    Int      @map("mailbox_id")
+  allowedEmail String   @map("allowed_email") @db.VarChar(191)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  mailbox      Mailbox  @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+
+  @@unique([mailboxId, allowedEmail])
+  @@map("sender_acl")
+}

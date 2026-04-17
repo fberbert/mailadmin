@@ -1,0 +1,262 @@
+mailadmin - help operacional
+
+Visao geral
+
+O utilitario mailadmin administra o backend virtual do servidor five:
+
+- domains
+- mailboxes
+- aliases
+- sender_acl
+
+Ele foi pensado para rodar no proprio servidor com sudo:
+
+```bash
+sudo /usr/local/bin/mailadmin ...
+```
+
+O script usa:
+
+- mysql local por socket
+- banco `mailserver`
+- diretorio de mailboxes em `/var/mail/vhosts`
+- hash de senha via `doveadm pw -s SHA512-CRYPT`
+
+
+Uso geral
+
+```bash
+sudo mailadmin --help
+sudo mailadmin domain --help
+sudo mailadmin mailbox --help
+sudo mailadmin alias --help
+sudo mailadmin sender-allow --help
+```
+
+
+1. Dominios
+
+Listar dominios:
+
+```bash
+sudo mailadmin domain list
+```
+
+Adicionar ou reativar dominio:
+
+```bash
+sudo mailadmin domain add automatizando.dev
+```
+
+Observacoes:
+
+- cria/garante o diretorio `/var/mail/vhosts/<dominio>`
+- reativa dominio se ele ja existir com `active=0`
+
+Remover dominio:
+
+```bash
+sudo mailadmin domain del automatizando.dev
+```
+
+Remover dominio e apagar o diretorio dele:
+
+```bash
+sudo mailadmin domain del automatizando.dev --purge-dir
+```
+
+Regras:
+
+- so remove dominio sem mailboxes e sem aliases
+
+
+2. Mailboxes
+
+Listar todas as mailboxes:
+
+```bash
+sudo mailadmin mailbox list
+```
+
+Listar mailboxes de um dominio:
+
+```bash
+sudo mailadmin mailbox list --domain vivaolinux.com.br
+```
+
+Criar ou reativar mailbox:
+
+```bash
+sudo mailadmin mailbox add fabio@vivaolinux.com.br --password '123mudar'
+```
+
+Criar mailbox com quota:
+
+```bash
+sudo mailadmin mailbox add user@dominio.com --password 'senha' --quota-bytes 1073741824
+```
+
+O que o comando faz:
+
+- cria ou reativa a mailbox no banco
+- atualiza a senha
+- cria automaticamente o sender principal no `sender_acl`
+- cria a arvore:
+  - `/var/mail/vhosts/<dominio>/<local_part>/Maildir`
+
+Trocar senha:
+
+```bash
+sudo mailadmin mailbox passwd fabio@vivaolinux.com.br --password 'novaSenha'
+```
+
+Remover mailbox:
+
+```bash
+sudo mailadmin mailbox del fabio@vivaolinux.com.br
+```
+
+Remover mailbox e apagar os arquivos ao inves de arquivar:
+
+```bash
+sudo mailadmin mailbox del fabio@vivaolinux.com.br --purge-files
+```
+
+Comportamento default do delete:
+
+- remove `sender_acl` da mailbox
+- remove a mailbox do banco
+- arquiva os arquivos para algo como:
+  - `/var/mail/vhosts/<dominio>/<local_part>.deleted-YYYYmmdd-HHMMSS`
+
+
+3. Aliases
+
+Listar aliases:
+
+```bash
+sudo mailadmin alias list
+```
+
+Listar aliases de um dominio:
+
+```bash
+sudo mailadmin alias list --domain vivaolinux.com.br
+```
+
+Criar ou reativar alias:
+
+```bash
+sudo mailadmin alias add contato@vivaolinux.com.br fabio@vivaolinux.com.br
+```
+
+Criar alias e tambem permitir envio como esse alias:
+
+```bash
+sudo mailadmin alias add postmaster@vivaolinux.com.br fabio@vivaolinux.com.br --allow-send fabio@vivaolinux.com.br
+```
+
+Esse `--allow-send`:
+
+- cria o alias de recepcao
+- e tambem adiciona o alias ao `sender_acl` da mailbox indicada
+
+Remover alias:
+
+```bash
+sudo mailadmin alias del contato@vivaolinux.com.br
+```
+
+
+4. Sender-allow
+
+O `sender_acl` controla quais enderecos uma mailbox autenticada pode usar no MAIL FROM.
+
+Listar identidades permitidas para uma mailbox:
+
+```bash
+sudo mailadmin sender-allow list fabio@vivaolinux.com.br
+```
+
+Permitir identidade extra:
+
+```bash
+sudo mailadmin sender-allow add fabio@vivaolinux.com.br postmaster@vivaolinux.com.br
+```
+
+Remover identidade extra:
+
+```bash
+sudo mailadmin sender-allow del fabio@vivaolinux.com.br postmaster@vivaolinux.com.br
+```
+
+Observacao:
+
+- o endereco principal da mailbox ja nasce permitido no `mailbox add`
+- `sender-allow` serve para identidades adicionais
+
+
+5. Fluxos comuns
+
+Criar dominio novo:
+
+```bash
+sudo mailadmin domain add novo-dominio.com
+```
+
+Criar mailbox:
+
+```bash
+sudo mailadmin mailbox add fabio@novo-dominio.com --password 'senha-temporaria'
+```
+
+Criar aliases principais:
+
+```bash
+sudo mailadmin alias add contato@novo-dominio.com fabio@novo-dominio.com --allow-send fabio@novo-dominio.com
+sudo mailadmin alias add postmaster@novo-dominio.com fabio@novo-dominio.com --allow-send fabio@novo-dominio.com
+sudo mailadmin alias add abuse@novo-dominio.com fabio@novo-dominio.com --allow-send fabio@novo-dominio.com
+sudo mailadmin alias add dmarc@novo-dominio.com fabio@novo-dominio.com --allow-send fabio@novo-dominio.com
+```
+
+Trocar senha de uma mailbox:
+
+```bash
+sudo mailadmin mailbox passwd fabio@novo-dominio.com --password 'senha-nova'
+```
+
+Remover alias:
+
+```bash
+sudo mailadmin alias del contato@novo-dominio.com
+```
+
+Remover mailbox:
+
+```bash
+sudo mailadmin mailbox del fabio@novo-dominio.com
+```
+
+
+6. Observacoes operacionais
+
+- rode com sudo
+- o script nao pede confirmacao interativa
+- `mailbox del` nao apaga aliases automaticamente
+- `domain del` falha se ainda existirem mailboxes ou aliases
+- o script nao publica DNS
+- o script nao gera DKIM por dominio automaticamente
+
+
+7. O que verificar depois
+
+Depois de criar mailbox/dominio:
+
+```bash
+sudo mailadmin mailbox list --domain vivaolinux.com.br
+sudo mailadmin alias list --domain vivaolinux.com.br
+sudo mailadmin sender-allow list fabio@vivaolinux.com.br
+sudo doveadm auth test fabio@vivaolinux.com.br
+sudo exim -bt fabio@vivaolinux.com.br
+```
+
