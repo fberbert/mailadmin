@@ -130,7 +130,7 @@ export default async function AliasesPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {paginated.items.map((alias) => (
-                <tr key={alias.id} className="border-t border-stone-200">
+                <tr key={alias.id} className="border-t border-stone-200 transition-colors hover:bg-stone-50/80">
                   <td className="px-6 py-4 font-medium text-stone-900">{alias.sourceEmail}</td>
                   <td className="px-6 py-4 text-stone-600">{alias.destination}</td>
                   <td className="px-6 py-4 text-stone-600">{alias.domainName}</td>

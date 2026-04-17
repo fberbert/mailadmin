@@ -2,8 +2,23 @@ export const dynamic = "force-dynamic";
 
 import { ArrowRight, Mail, Send, Shield, Globe2 } from "lucide-react";
 
+import { AnimatedNumber } from "@/components/animated-number";
 import { MiniLink, PageHeader, StatCard, Surface } from "@/components/ui";
 import { getMailAdminProvider } from "@/lib/mailadmin";
+import type { AliasRecord, DomainRecord, MailboxRecord, SenderAclRecord } from "@/lib/mailadmin/types";
+
+function sortNewest<T extends { createdAt: Date; id: number }>(records: T[]) {
+  return [...records].sort((left, right) => {
+    const leftTime = new Date(left.createdAt).getTime();
+    const rightTime = new Date(right.createdAt).getTime();
+
+    if (leftTime === rightTime) {
+      return right.id - left.id;
+    }
+
+    return rightTime - leftTime;
+  });
+}
 
 export default async function DashboardPage() {
   const mailAdminProvider = await getMailAdminProvider();
@@ -14,9 +29,13 @@ export default async function DashboardPage() {
     mailAdminProvider.listAliases(),
     mailAdminProvider.listSenderAcl(),
   ]);
+  const recentDomains = sortNewest<DomainRecord>(domains).slice(0, 6);
+  const newestMailboxes = sortNewest<MailboxRecord>(mailboxes).slice(0, 5);
+  const newestAliases = sortNewest<AliasRecord>(aliases).slice(0, 5);
+  const newestSenderRules = sortNewest<SenderAclRecord>(senderRules).slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className="panel-reveal space-y-8">
       <PageHeader
         eyebrow="Overview"
         title="Operational control surface"
@@ -24,10 +43,10 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Domains" value={metrics.domainCount} hint="Hosted domains currently onboarded." />
-        <StatCard label="Mailboxes" value={metrics.mailboxCount} hint="Authenticable mailboxes with storage backing." />
-        <StatCard label="Aliases" value={metrics.aliasCount} hint="Inbound rewrite and delivery aliases." />
-        <StatCard label="Sender ACL" value={metrics.senderRuleCount} hint="Allowed send-as identities per mailbox." />
+        <StatCard label="Domains" value={<AnimatedNumber value={metrics.domainCount} />} hint="Hosted domains currently onboarded." />
+        <StatCard label="Mailboxes" value={<AnimatedNumber value={metrics.mailboxCount} />} hint="Authenticable mailboxes with storage backing." />
+        <StatCard label="Aliases" value={<AnimatedNumber value={metrics.aliasCount} />} hint="Inbound rewrite and delivery aliases." />
+        <StatCard label="Sender ACL" value={<AnimatedNumber value={metrics.senderRuleCount} />} hint="Allowed send-as identities per mailbox." />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
@@ -37,10 +56,10 @@ export default async function DashboardPage() {
             <MiniLink href="/domains">Manage domains</MiniLink>
           </div>
           <div className="mt-6 space-y-3">
-            {domains.slice(0, 6).map((domain) => (
+            {recentDomains.map((domain) => (
               <div
                 key={domain.id}
-                className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3"
+                className="card-hover flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex size-10 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm">
@@ -62,7 +81,7 @@ export default async function DashboardPage() {
         <Surface className="space-y-5">
           <h2 className="text-lg font-semibold text-stone-950">Operational notes</h2>
           <div className="grid gap-4">
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <div className="card-hover rounded-2xl border border-stone-200 bg-stone-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-stone-900">
                 <Mail className="size-4 text-amber-700" />
                 Mailboxes
@@ -71,7 +90,7 @@ export default async function DashboardPage() {
                 Provisioning a mailbox should also create its primary sender ACL entry. This panel mirrors that behavior in database mode.
               </p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <div className="card-hover rounded-2xl border border-stone-200 bg-stone-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-stone-900">
                 <Send className="size-4 text-amber-700" />
                 Send-as policy
@@ -80,7 +99,7 @@ export default async function DashboardPage() {
                 Sender ACL is intentionally separate from aliases. Input routing and outbound identity are different controls.
               </p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <div className="card-hover rounded-2xl border border-stone-200 bg-stone-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-stone-900">
                 <Shield className="size-4 text-amber-700" />
                 Driver mode
@@ -100,8 +119,8 @@ export default async function DashboardPage() {
             <MiniLink href="/mailboxes">Open mailbox catalog</MiniLink>
           </div>
           <div className="mt-5 space-y-3">
-            {mailboxes.slice(0, 5).map((mailbox) => (
-              <div key={mailbox.id} className="rounded-2xl border border-stone-200 px-4 py-3">
+            {newestMailboxes.map((mailbox) => (
+              <div key={mailbox.id} className="card-hover rounded-2xl border border-stone-200 px-4 py-3">
                 <div className="font-medium text-stone-900">{mailbox.email}</div>
                 <div className="text-sm text-stone-500">{mailbox.domainName}</div>
               </div>
@@ -115,8 +134,8 @@ export default async function DashboardPage() {
             <MiniLink href="/aliases">Open alias catalog</MiniLink>
           </div>
           <div className="mt-5 space-y-3">
-            {aliases.slice(0, 5).map((alias) => (
-              <div key={alias.id} className="rounded-2xl border border-stone-200 px-4 py-3">
+            {newestAliases.map((alias) => (
+              <div key={alias.id} className="card-hover rounded-2xl border border-stone-200 px-4 py-3">
                 <div className="font-medium text-stone-900">{alias.sourceEmail}</div>
                 <div className="text-sm text-stone-500">{alias.destination}</div>
               </div>
@@ -130,8 +149,8 @@ export default async function DashboardPage() {
             <MiniLink href="/sender-acl">Open sender rules</MiniLink>
           </div>
           <div className="mt-5 space-y-3">
-            {senderRules.slice(0, 5).map((rule) => (
-              <div key={rule.id} className="rounded-2xl border border-stone-200 px-4 py-3">
+            {newestSenderRules.map((rule) => (
+              <div key={rule.id} className="card-hover rounded-2xl border border-stone-200 px-4 py-3">
                 <div className="font-medium text-stone-900">{rule.allowedEmail}</div>
                 <div className="text-sm text-stone-500">{rule.mailboxEmail}</div>
               </div>

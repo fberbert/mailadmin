@@ -126,7 +126,7 @@ export default async function SenderAclPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {paginated.items.map((rule) => (
-                <tr key={rule.id} className="border-t border-stone-200">
+                <tr key={rule.id} className="border-t border-stone-200 transition-colors hover:bg-stone-50/80">
                   <td className="px-6 py-4 font-medium text-stone-900">{rule.mailboxEmail}</td>
                   <td className="px-6 py-4 text-stone-600">{rule.allowedEmail}</td>
                   <td className="px-6 py-4">

@@ -115,7 +115,7 @@ export default async function DomainsPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {paginated.items.map((record) => (
-                <tr key={record.id} className="border-t border-stone-200">
+                <tr key={record.id} className="border-t border-stone-200 transition-colors hover:bg-stone-50/80">
                   <td className="px-6 py-4 font-medium text-stone-900">{record.name}</td>
                   <td className="px-6 py-4">
                     <StatusPill active={record.active} />

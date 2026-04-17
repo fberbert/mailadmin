@@ -127,7 +127,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {paginated.items.map((mailbox) => (
-                <tr key={mailbox.id} className="border-t border-stone-200 align-top">
+                <tr key={mailbox.id} className="border-t border-stone-200 align-top transition-colors hover:bg-stone-50/80">
                   <td className="px-6 py-4 font-medium text-stone-900">{mailbox.email}</td>
                   <td className="px-6 py-4 text-stone-600">{mailbox.domainName}</td>
                   <td className="px-6 py-4 text-stone-600">{formatBytes(mailbox.quotaBytes)}</td>

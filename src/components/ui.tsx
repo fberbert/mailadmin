@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { InputHTMLAttributes, ReactNode } from "react";
 
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({
@@ -40,7 +41,7 @@ export function Surface({
   return (
     <section
       className={cn(
-        "rounded-3xl border border-stone-200 bg-white/90 p-6 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_24px_80px_rgba(28,25,23,0.08)]",
+        "panel-reveal rounded-3xl border border-stone-200 bg-white/90 p-6 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_24px_80px_rgba(28,25,23,0.08)]",
         className,
       )}
     >
@@ -75,7 +76,7 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <Surface className="p-5">
+    <Surface className="card-hover p-5">
       <div className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{label}</div>
       <div className="mt-3 text-3xl font-semibold text-stone-950">{value}</div>
       {hint ? <div className="mt-2 text-sm text-stone-600">{hint}</div> : null}
@@ -152,28 +153,17 @@ export function SubmitButton({
   children,
   variant = "primary",
   className,
+  pendingLabel,
 }: {
   children: ReactNode;
   variant?: "primary" | "secondary" | "danger";
   className?: string;
+  pendingLabel?: ReactNode;
 }) {
-  const variants = {
-    primary: "bg-stone-950 text-white hover:bg-stone-800",
-    secondary: "bg-stone-100 text-stone-900 hover:bg-stone-200",
-    danger: "bg-red-600 text-white hover:bg-red-500",
-  };
-
   return (
-    <button
-      type="submit"
-      className={cn(
-        "inline-flex h-11 items-center justify-center rounded-2xl px-4 text-sm font-semibold transition",
-        variants[variant],
-        className,
-      )}
-    >
+    <FormSubmitButton variant={variant} className={className} pendingLabel={pendingLabel}>
       {children}
-    </button>
+    </FormSubmitButton>
   );
 }
 
@@ -199,8 +189,8 @@ export function ActionIconButton({
       type="submit"
       aria-label={label}
       title={label}
-      className={cn(
-        "inline-flex size-10 items-center justify-center rounded-xl text-sm font-semibold transition",
+        className={cn(
+        "inline-flex size-10 cursor-pointer items-center justify-center rounded-xl text-sm font-semibold transition disabled:cursor-not-allowed",
         variants[variant],
         className,
       )}
@@ -233,7 +223,7 @@ export function Notice({
 
 export function MiniLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="text-sm font-medium text-amber-700 transition hover:text-amber-800">
+    <Link href={href} className="cursor-pointer text-sm font-medium text-amber-700 transition hover:text-amber-800">
       {children}
     </Link>
   );
@@ -268,7 +258,7 @@ export function PaginationNav({
             "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
             currentPage === 1
               ? "pointer-events-none bg-stone-100 text-stone-400"
-              : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+              : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
           )}
         >
           Previous
@@ -281,7 +271,7 @@ export function PaginationNav({
               "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
               page === currentPage
                 ? "bg-stone-950 text-white"
-                : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+                : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
             )}
           >
             {page}
@@ -293,7 +283,7 @@ export function PaginationNav({
             "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
             currentPage === totalPages
               ? "pointer-events-none bg-stone-100 text-stone-400"
-              : "bg-stone-100 text-stone-900 hover:bg-stone-200",
+              : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
           )}
         >
           Next

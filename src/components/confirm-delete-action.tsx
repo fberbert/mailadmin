@@ -37,8 +37,8 @@ export function ConfirmDeleteAction({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2rem] border border-stone-200 bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm animate-[fade-slide-in_180ms_ease-out]">
+          <div className="w-full max-w-md rounded-[2rem] border border-stone-200 bg-white p-6 shadow-2xl animate-[scale-in-soft_220ms_cubic-bezier(0.22,1,0.36,1)]">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-red-100 text-red-700">
@@ -53,7 +53,7 @@ export function ConfirmDeleteAction({
                 type="button"
                 aria-label="Close confirmation dialog"
                 onClick={() => setOpen(false)}
-                className="inline-flex size-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700 transition hover:bg-stone-200"
+                className="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl bg-stone-100 text-stone-700 transition hover:bg-stone-200"
               >
                 <X className="size-4" />
               </button>
@@ -63,7 +63,7 @@ export function ConfirmDeleteAction({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-stone-100 px-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-200"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-stone-100 px-4 text-sm font-semibold text-stone-900 transition hover:bg-stone-200"
               >
                 Cancel
               </button>
@@ -73,7 +73,7 @@ export function ConfirmDeleteAction({
                 ))}
                 <button
                   type="submit"
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-500"
+                  className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-500"
                 >
                   {confirmLabel}
                 </button>

@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: Props) {
 
   return (
     <main className="grid min-h-screen place-items-center p-4">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_40px_120px_rgba(28,25,23,0.12)] lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="panel-reveal grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_40px_120px_rgba(28,25,23,0.12)] lg:grid-cols-[1.1fr_0.9fr]">
         <section className="relative hidden overflow-hidden bg-stone-950 px-10 py-12 text-white lg:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.28),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(251,191,36,0.18),_transparent_24%)]" />
           <div className="relative flex h-full flex-col justify-between">
@@ -91,7 +91,9 @@ export default async function LoginPage({ searchParams }: Props) {
                 />
               </div>
 
-              <SubmitButton className="w-full">Enter panel</SubmitButton>
+              <SubmitButton className="w-full" pendingLabel="Entering...">
+                Enter panel
+              </SubmitButton>
             </form>
           </div>
         </section>
