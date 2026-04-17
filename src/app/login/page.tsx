@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { KeyRound, ShieldCheck } from "lucide-react";
 
 import { loginAction } from "@/app/login/actions";
-import { Notice, SubmitButton, TextInput } from "@/components/ui";
+import { SubmitButton, TextInput } from "@/components/ui";
+import { PageToast } from "@/components/page-toast";
 import { PasswordInput } from "@/components/password-input";
 import { getSession } from "@/lib/auth";
 
@@ -64,11 +65,7 @@ export default async function LoginPage({ searchParams }: Props) {
               </p>
             </div>
 
-            {error ? (
-              <div className="mb-6">
-                <Notice tone="error">Invalid credentials. Check your username and password and try again.</Notice>
-              </div>
-            ) : null}
+            <PageToast error={error ? "Invalid credentials. Check your username and password and try again." : undefined} />
 
             <form action={loginAction} className="space-y-5">
               <div className="grid gap-2">

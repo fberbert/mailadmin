@@ -9,7 +9,6 @@ import {
   ActionIconButton,
   Field,
   FormActionSlot,
-  Notice,
   PageHeader,
   PaginationNav,
   SelectInput,
@@ -19,7 +18,9 @@ import {
   TextInput,
 } from "@/components/ui";
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
+import { PageToast } from "@/components/page-toast";
 import { PasswordInput } from "@/components/password-input";
+import { QuotaInput } from "@/components/quota-input";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { formatBytes } from "@/lib/utils";
@@ -60,8 +61,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
         description="Create mailbox identities, rotate passwords and inspect quotas. The primary sender ACL is created automatically."
       />
 
-      {success ? <Notice tone="success">Action completed: {success}</Notice> : null}
-      {error ? <Notice tone="error">{error}</Notice> : null}
+      <PageToast success={success} error={error} />
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Create mailbox</h2>
@@ -76,8 +76,8 @@ export default async function MailboxesPage({ searchParams }: Props) {
           <Field label="Password" htmlFor="mailbox-password">
             <PasswordInput id="mailbox-password" name="password" placeholder="temporary password" required />
           </Field>
-          <Field label="Quota bytes" htmlFor="mailbox-quota" hint="Leave empty for unlimited.">
-            <TextInput id="mailbox-quota" name="quotaBytes" inputMode="numeric" placeholder="1073741824" />
+          <Field label="Quota" htmlFor="mailbox-quota" hint="Leave empty for unlimited. Saved internally in bytes.">
+            <QuotaInput id="mailbox-quota" name="quotaBytes" />
           </Field>
           <FormActionSlot>
             <SubmitButton className="w-full">Create mailbox</SubmitButton>

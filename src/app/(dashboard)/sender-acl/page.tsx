@@ -4,7 +4,6 @@ import { createSenderAclAction, deleteSenderAclAction } from "@/app/(dashboard)/
 import {
   Field,
   FormActionSlot,
-  Notice,
   PageHeader,
   PaginationNav,
   SelectInput,
@@ -16,6 +15,7 @@ import {
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { PageToast } from "@/components/page-toast";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -56,8 +56,7 @@ export default async function SenderAclPage({ searchParams }: Props) {
         description="Manage which addresses each mailbox is allowed to use in the MAIL FROM / From header path."
       />
 
-      {success ? <Notice tone="success">Action completed: {success}</Notice> : null}
-      {error ? <Notice tone="error">{error}</Notice> : null}
+      <PageToast success={success} error={error} />
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Allow send-as</h2>

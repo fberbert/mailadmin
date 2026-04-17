@@ -4,7 +4,6 @@ import { createDomainAction, deleteDomainAction } from "@/app/(dashboard)/action
 import {
   Field,
   FormActionSlot,
-  Notice,
   PageHeader,
   PaginationNav,
   SelectInput,
@@ -16,6 +15,7 @@ import {
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { PageToast } from "@/components/page-toast";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -52,8 +52,7 @@ export default async function DomainsPage({ searchParams }: Props) {
         description="Add, reactivate and retire hosted domains. In CLI mode this panel can delegate to the existing mailadmin utility."
       />
 
-      {success ? <Notice tone="success">Action completed: {success}</Notice> : null}
-      {error ? <Notice tone="error">{error}</Notice> : null}
+      <PageToast success={success} error={error} />
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Add a domain</h2>

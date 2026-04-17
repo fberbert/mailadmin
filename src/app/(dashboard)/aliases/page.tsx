@@ -4,7 +4,6 @@ import { createAliasAction, deleteAliasAction } from "@/app/(dashboard)/actions"
 import {
   Field,
   FormActionSlot,
-  Notice,
   PageHeader,
   PaginationNav,
   SelectInput,
@@ -16,6 +15,7 @@ import {
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
+import { PageToast } from "@/components/page-toast";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -57,8 +57,7 @@ export default async function AliasesPage({ searchParams }: Props) {
         description="Manage source addresses and delivery targets. Optionally add the alias as an extra send-as identity for a mailbox."
       />
 
-      {success ? <Notice tone="success">Action completed: {success}</Notice> : null}
-      {error ? <Notice tone="error">{error}</Notice> : null}
+      <PageToast success={success} error={error} />
 
       <Surface>
         <h2 className="text-lg font-semibold text-stone-950">Create alias</h2>
