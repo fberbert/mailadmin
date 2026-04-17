@@ -21,6 +21,16 @@ export const mailboxSchema = z.object({
     .transform((value) => (value ? BigInt(value) : null)),
 });
 
+export const mailboxUpdateSchema = z.object({
+  email: emailSchema,
+  active: z.enum(["true", "false"]).transform((value) => value === "true"),
+  quotaBytes: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? BigInt(value) : null)),
+});
+
 export const passwordSchema = z.object({
   email: emailSchema,
   password: z.string().min(4),

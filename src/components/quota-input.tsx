@@ -11,15 +11,35 @@ const MULTIPLIERS = {
 
 type Unit = keyof typeof MULTIPLIERS;
 
+function deriveInitialState(initialBytes: bigint | null | undefined) {
+  if (!initialBytes || initialBytes <= BigInt(0)) {
+    return { amount: "", unit: "GB" as Unit };
+  }
+
+  const gigabytes = BigInt(MULTIPLIERS.GB);
+
+  if (initialBytes % gigabytes === BigInt(0)) {
+    return { amount: String(initialBytes / gigabytes), unit: "GB" as Unit };
+  }
+
+  return {
+    amount: (Number(initialBytes) / MULTIPLIERS.MB).toString(),
+    unit: "MB" as Unit,
+  };
+}
+
 export function QuotaInput({
   name,
   id,
+  initialBytes,
 }: {
   name: string;
   id: string;
+  initialBytes?: bigint | null;
 }) {
-  const [amount, setAmount] = useState("");
-  const [unit, setUnit] = useState<Unit>("GB");
+  const initialState = useMemo(() => deriveInitialState(initialBytes), [initialBytes]);
+  const [amount, setAmount] = useState(initialState.amount);
+  const [unit, setUnit] = useState<Unit>(initialState.unit);
 
   const bytesValue = useMemo(() => {
     const numeric = Number.parseFloat(amount);
@@ -39,7 +59,7 @@ export function QuotaInput({
           id={id}
           type="number"
           min="0"
-          step="1"
+          step="0.01"
           inputMode="numeric"
           placeholder="1"
           value={amount}

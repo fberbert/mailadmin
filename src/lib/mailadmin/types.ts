@@ -54,6 +54,7 @@ export type MailAdminProvider = {
   deleteDomain(input: { name: string }): Promise<void>;
   listMailboxes(): Promise<MailboxRecord[]>;
   createMailbox(input: { email: string; password: string; quotaBytes?: bigint | null }): Promise<void>;
+  updateMailbox(input: { email: string; active: boolean; quotaBytes: bigint | null }): Promise<void>;
   updateMailboxPassword(input: { email: string; password: string }): Promise<void>;
   deleteMailbox(input: { email: string }): Promise<void>;
   listAliases(): Promise<AliasRecord[]>;

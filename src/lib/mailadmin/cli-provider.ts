@@ -129,6 +129,16 @@ export const cliProvider: MailAdminProvider = {
     await runMailadmin(args);
   },
 
+  async updateMailbox({ email, active, quotaBytes }) {
+    const args = ["mailbox", "update", email, active ? "--active" : "--inactive"];
+    if (quotaBytes !== null) {
+      args.push("--quota-bytes", quotaBytes.toString());
+    } else {
+      args.push("--unlimited-quota");
+    }
+    await runMailadmin(args);
+  },
+
   async updateMailboxPassword({ email, password }) {
     await runMailadmin(["mailbox", "passwd", email, "--password", password]);
   },

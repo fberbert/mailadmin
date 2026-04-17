@@ -9,6 +9,7 @@ import {
   aliasSchema,
   domainSchema,
   mailboxSchema,
+  mailboxUpdateSchema,
   passwordSchema,
   senderAclSchema,
 } from "@/lib/mailadmin/schemas";
@@ -102,6 +103,25 @@ export async function updateMailboxPasswordAction(formData: FormData) {
     await mailAdminProvider.updateMailboxPassword(data);
     revalidatePath("/mailboxes");
     redirectWithStatus(returnTo, "/mailboxes", "success", "password-updated");
+  } catch (error) {
+    failure("/mailboxes", returnTo, error);
+  }
+}
+
+export async function updateMailboxAction(formData: FormData) {
+  const returnTo = getString(formData, "returnTo");
+
+  try {
+    const mailAdminProvider = await getMailAdminProvider();
+    const data = mailboxUpdateSchema.parse({
+      email: getString(formData, "email"),
+      active: getString(formData, "active"),
+      quotaBytes: getString(formData, "quotaBytes"),
+    });
+    await mailAdminProvider.updateMailbox(data);
+    revalidatePath("/");
+    revalidatePath("/mailboxes");
+    redirectWithStatus(returnTo, "/mailboxes", "success", "mailbox-updated");
   } catch (error) {
     failure("/mailboxes", returnTo, error);
   }

@@ -250,6 +250,27 @@ def cmd_mailbox_passwd(args: argparse.Namespace) -> None:
     print(f"password updated: {email}")
 
 
+def cmd_mailbox_update(args: argparse.Namespace) -> None:
+    email = args.email.lower()
+    get_mailbox_id(email)
+
+    updates = [f"active={1 if args.active else 0}"]
+
+    if args.unlimited_quota:
+        updates.append("quota_bytes=NULL")
+    elif args.quota_bytes is not None:
+        updates.append(f"quota_bytes={args.quota_bytes}")
+
+    updates.append("updated_at=CURRENT_TIMESTAMP")
+
+    mysql(
+        "UPDATE mailboxes "
+        f"SET {', '.join(updates)} "
+        f"WHERE email='{sql_quote(email)}'"
+    )
+    print(f"mailbox updated: {email}")
+
+
 def cmd_mailbox_del(args: argparse.Namespace) -> None:
     email = args.email.lower()
     mailbox_id = get_mailbox_id(email)
@@ -365,6 +386,15 @@ def build_parser() -> argparse.ArgumentParser:
     mailbox_add.add_argument("--password", required=True)
     mailbox_add.add_argument("--quota-bytes", type=int)
     mailbox_add.set_defaults(func=cmd_mailbox_add)
+    mailbox_update = mailbox_sub.add_parser("update", help="update mailbox settings")
+    mailbox_update.add_argument("email")
+    mailbox_update_state = mailbox_update.add_mutually_exclusive_group(required=True)
+    mailbox_update_state.add_argument("--active", action="store_true")
+    mailbox_update_state.add_argument("--inactive", action="store_true")
+    mailbox_update_quota = mailbox_update.add_mutually_exclusive_group()
+    mailbox_update_quota.add_argument("--quota-bytes", type=int)
+    mailbox_update_quota.add_argument("--unlimited-quota", action="store_true")
+    mailbox_update.set_defaults(func=cmd_mailbox_update)
     mailbox_passwd = mailbox_sub.add_parser("passwd", help="change mailbox password")
     mailbox_passwd.add_argument("email")
     mailbox_passwd.add_argument("--password", required=True)

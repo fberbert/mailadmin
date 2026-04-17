@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import {
   createMailboxAction,
   deleteMailboxAction,
+  updateMailboxAction,
   updateMailboxPasswordAction,
 } from "@/app/(dashboard)/actions";
 import {
@@ -18,6 +19,7 @@ import {
   TextInput,
 } from "@/components/ui";
 import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
+import { EditMailboxAction } from "@/components/edit-mailbox-action";
 import { PageToast } from "@/components/page-toast";
 import { PasswordInput } from "@/components/password-input";
 import { QuotaInput } from "@/components/quota-input";
@@ -121,6 +123,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
                 <th className="px-6 py-3 font-medium">Quota</th>
                 <th className="px-6 py-3 font-medium">Sender ACL</th>
                 <th className="px-6 py-3 font-medium">Status</th>
+                <th className="px-6 py-3 font-medium">Settings</th>
                 <th className="px-6 py-3 font-medium">Password</th>
                 <th className="px-6 py-3 font-medium">Delete</th>
               </tr>
@@ -134,6 +137,15 @@ export default async function MailboxesPage({ searchParams }: Props) {
                   <td className="px-6 py-4 text-stone-600">{mailbox.senderCount}</td>
                   <td className="px-6 py-4">
                     <StatusPill active={mailbox.active} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <EditMailboxAction
+                      action={updateMailboxAction}
+                      email={mailbox.email}
+                      active={mailbox.active}
+                      quotaBytes={mailbox.quotaBytes}
+                      returnTo={currentHref}
+                    />
                   </td>
                   <td className="px-6 py-4">
                     <form action={updateMailboxPasswordAction} className="flex min-w-60 gap-2">
@@ -166,7 +178,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
               ))}
               {paginated.items.length === 0 ? (
                 <tr className="border-t border-stone-200">
-                  <td colSpan={7} className="px-6 py-10 text-center text-stone-500">
+                  <td colSpan={8} className="px-6 py-10 text-center text-stone-500">
                     No mailboxes matched the current filters.
                   </td>
                 </tr>

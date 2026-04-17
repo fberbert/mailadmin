@@ -134,6 +134,16 @@ export const databaseProvider: MailAdminProvider = {
     });
   },
 
+  async updateMailbox({ email, active, quotaBytes }) {
+    await prisma.mailbox.update({
+      where: { email: email.trim().toLowerCase() },
+      data: {
+        active,
+        quotaBytes,
+      },
+    });
+  },
+
   async updateMailboxPassword({ email, password }) {
     await prisma.mailbox.update({
       where: { email: email.trim().toLowerCase() },
