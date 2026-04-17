@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { createDomainAction, deleteDomainAction } from "@/app/(dashboard)/actions";
 import {
-  ActionIconButton,
   Field,
   FormActionSlot,
   Notice,
@@ -14,9 +13,9 @@ import {
   Surface,
   TextInput,
 } from "@/components/ui";
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
-import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -124,13 +123,16 @@ export default async function DomainsPage({ searchParams }: Props) {
                   <td className="px-6 py-4 text-stone-600">{record.mailboxCount}</td>
                   <td className="px-6 py-4 text-stone-600">{record.aliasCount}</td>
                   <td className="px-6 py-4">
-                    <form action={deleteDomainAction}>
-                      <input type="hidden" name="returnTo" value={currentHref} />
-                      <input type="hidden" name="name" value={record.name} />
-                      <ActionIconButton variant="danger" label={`Delete domain ${record.name}`}>
-                        <Trash2 className="size-4" />
-                      </ActionIconButton>
-                    </form>
+                    <ConfirmDeleteAction
+                      action={deleteDomainAction}
+                      title={`Delete domain ${record.name}?`}
+                      description="This removes the hosted domain from the panel. Use this only when the domain is no longer managed here."
+                      confirmLabel="Delete domain"
+                      fields={[
+                        { name: "returnTo", value: currentHref },
+                        { name: "name", value: record.name },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

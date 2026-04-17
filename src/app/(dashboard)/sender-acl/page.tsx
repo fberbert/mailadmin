@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { createSenderAclAction, deleteSenderAclAction } from "@/app/(dashboard)/actions";
 import {
-  ActionIconButton,
   Field,
   FormActionSlot,
   Notice,
@@ -14,9 +13,9 @@ import {
   Surface,
   TextInput,
 } from "@/components/ui";
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
-import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -134,17 +133,17 @@ export default async function SenderAclPage({ searchParams }: Props) {
                     <StatusPill active={rule.active} />
                   </td>
                   <td className="px-6 py-4">
-                    <form action={deleteSenderAclAction}>
-                      <input type="hidden" name="returnTo" value={currentHref} />
-                      <input type="hidden" name="mailboxEmail" value={rule.mailboxEmail} />
-                      <input type="hidden" name="allowedEmail" value={rule.allowedEmail} />
-                      <ActionIconButton
-                        variant="danger"
-                        label={`Delete sender rule ${rule.allowedEmail} for ${rule.mailboxEmail}`}
-                      >
-                        <Trash2 className="size-4" />
-                      </ActionIconButton>
-                    </form>
+                    <ConfirmDeleteAction
+                      action={deleteSenderAclAction}
+                      title="Delete sender permission?"
+                      description={`${rule.mailboxEmail} will no longer be allowed to send as ${rule.allowedEmail}.`}
+                      confirmLabel="Delete rule"
+                      fields={[
+                        { name: "returnTo", value: currentHref },
+                        { name: "mailboxEmail", value: rule.mailboxEmail },
+                        { name: "allowedEmail", value: rule.allowedEmail },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

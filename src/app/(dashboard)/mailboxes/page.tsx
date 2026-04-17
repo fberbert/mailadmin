@@ -18,11 +18,12 @@ import {
   Surface,
   TextInput,
 } from "@/components/ui";
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { PasswordInput } from "@/components/password-input";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { formatBytes } from "@/lib/utils";
-import { RotateCw, Trash2 } from "lucide-react";
+import { RotateCw } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -150,13 +151,16 @@ export default async function MailboxesPage({ searchParams }: Props) {
                     </form>
                   </td>
                   <td className="px-6 py-4">
-                    <form action={deleteMailboxAction}>
-                      <input type="hidden" name="returnTo" value={currentHref} />
-                      <input type="hidden" name="email" value={mailbox.email} />
-                      <ActionIconButton variant="danger" label={`Delete mailbox ${mailbox.email}`}>
-                        <Trash2 className="size-4" />
-                      </ActionIconButton>
-                    </form>
+                    <ConfirmDeleteAction
+                      action={deleteMailboxAction}
+                      title={`Delete mailbox ${mailbox.email}?`}
+                      description="This removes the mailbox from the panel and revokes its authenticated access."
+                      confirmLabel="Delete mailbox"
+                      fields={[
+                        { name: "returnTo", value: currentHref },
+                        { name: "email", value: mailbox.email },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { createAliasAction, deleteAliasAction } from "@/app/(dashboard)/actions";
 import {
-  ActionIconButton,
   Field,
   FormActionSlot,
   Notice,
@@ -14,9 +13,9 @@ import {
   Surface,
   TextInput,
 } from "@/components/ui";
+import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
-import { Trash2 } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -139,13 +138,16 @@ export default async function AliasesPage({ searchParams }: Props) {
                     <StatusPill active={alias.active} />
                   </td>
                   <td className="px-6 py-4">
-                    <form action={deleteAliasAction}>
-                      <input type="hidden" name="returnTo" value={currentHref} />
-                      <input type="hidden" name="sourceEmail" value={alias.sourceEmail} />
-                      <ActionIconButton variant="danger" label={`Delete alias ${alias.sourceEmail}`}>
-                        <Trash2 className="size-4" />
-                      </ActionIconButton>
-                    </form>
+                    <ConfirmDeleteAction
+                      action={deleteAliasAction}
+                      title={`Delete alias ${alias.sourceEmail}?`}
+                      description={`Incoming mail for ${alias.sourceEmail} will stop routing to ${alias.destination}.`}
+                      confirmLabel="Delete alias"
+                      fields={[
+                        { name: "returnTo", value: currentHref },
+                        { name: "sourceEmail", value: alias.sourceEmail },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}
