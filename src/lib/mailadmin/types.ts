@@ -56,6 +56,11 @@ export type MailAdminProvider = {
   createMailbox(input: { email: string; password: string; quotaBytes?: bigint | null }): Promise<void>;
   updateMailbox(input: { email: string; active: boolean; quotaBytes: bigint | null }): Promise<void>;
   updateMailboxPassword(input: { email: string; password: string }): Promise<void>;
+  changeMailboxPasswordSelf(input: {
+    email: string;
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void>;
   deleteMailbox(input: { email: string }): Promise<void>;
   listAliases(): Promise<AliasRecord[]>;
   createAlias(input: {

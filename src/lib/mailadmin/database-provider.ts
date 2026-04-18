@@ -24,6 +24,10 @@ function toDevPasswordHash(password: string) {
   return `{DEV-SHA256}${createHash("sha256").update(password).digest("hex")}`;
 }
 
+function matchesDevPasswordHash(password: string, hash: string) {
+  return hash === toDevPasswordHash(password);
+}
+
 export const databaseProvider: MailAdminProvider = {
   async listDomains(): Promise<DomainRecord[]> {
     const domains = await prisma.domain.findMany({
@@ -148,6 +152,27 @@ export const databaseProvider: MailAdminProvider = {
     await prisma.mailbox.update({
       where: { email: email.trim().toLowerCase() },
       data: { password: toDevPasswordHash(password) },
+    });
+  },
+
+  async changeMailboxPasswordSelf({ email, currentPassword, newPassword }) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const mailbox = await prisma.mailbox.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, active: true, password: true },
+    });
+
+    if (!mailbox || !mailbox.active) {
+      throw new Error("Mailbox not found or inactive");
+    }
+
+    if (!matchesDevPasswordHash(currentPassword, mailbox.password)) {
+      throw new Error("Current password is incorrect");
+    }
+
+    await prisma.mailbox.update({
+      where: { email: normalizedEmail },
+      data: { password: toDevPasswordHash(newPassword) },
     });
   },
 

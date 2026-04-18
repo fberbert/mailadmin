@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { KeyRound, ShieldCheck } from "lucide-react";
 
 import { loginAction } from "@/app/login/actions";
+import { FloatingThemeToggle } from "@/components/floating-theme-toggle";
 import { SubmitButton, TextInput } from "@/components/ui";
 import { PageToast } from "@/components/page-toast";
 import { PasswordInput } from "@/components/password-input";
@@ -22,6 +24,7 @@ export default async function LoginPage({ searchParams }: Props) {
 
   return (
     <main className="grid min-h-screen place-items-center p-4">
+      <FloatingThemeToggle />
       <div className="panel-reveal grid w-full max-w-5xl overflow-hidden rounded-[2rem] border lg:grid-cols-[1.1fr_0.9fr]" style={{ borderColor: "var(--border)", background: "var(--surface)", boxShadow: "var(--shadow-login)" }}>
         <section className="relative hidden overflow-hidden px-10 py-12 text-white lg:block" style={{ background: "var(--sidebar-bg)" }}>
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at top left, rgba(251,191,36,0.28), transparent 28%), radial-gradient(circle at bottom right, rgba(251,191,36,0.18), transparent 24%)" }} />
@@ -95,6 +98,13 @@ export default async function LoginPage({ searchParams }: Props) {
                 Enter panel
               </SubmitButton>
             </form>
+
+            <div className="mt-6 text-sm" style={{ color: "var(--text-secondary)" }}>
+              Mailbox owner?{" "}
+              <Link href="/account/password" className="font-medium transition hover:underline" style={{ color: "var(--accent-text)" }}>
+                Change your password
+              </Link>
+            </div>
           </div>
         </section>
       </div>

@@ -36,6 +36,18 @@ export const passwordSchema = z.object({
   password: z.string().min(4),
 });
 
+export const selfServicePasswordSchema = z
+  .object({
+    email: emailSchema,
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(4, "New password must have at least 4 characters"),
+    confirmPassword: z.string().min(1, "Confirm your new password"),
+  })
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    message: "New password confirmation does not match",
+    path: ["confirmPassword"],
+  });
+
 export const aliasSchema = z.object({
   sourceEmail: emailSchema,
   destination: z.string().trim().min(3),

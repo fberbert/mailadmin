@@ -63,6 +63,12 @@ def hash_password(password: str) -> str:
     return proc.stdout.strip()
 
 
+def verify_mailbox_password(email: str, password: str) -> None:
+    proc = run(["doveadm", "auth", "test", email, password], check=False)
+    if proc.returncode != 0:
+        die("Current password is incorrect")
+
+
 def ensure_domain_dir(domain: str) -> Path:
     path = VHOSTS_ROOT / domain
     path.mkdir(mode=0o750, parents=True, exist_ok=True)
@@ -201,6 +207,19 @@ def cmd_mailbox_add(args: argparse.Namespace) -> None:
 def cmd_mailbox_passwd(args: argparse.Namespace) -> None:
     email = args.email.lower()
     get_mailbox_id(email)
+    password_hash = hash_password(args.password)
+    mysql(
+        "UPDATE mailboxes "
+        f"SET password='{sql_quote(password_hash)}', updated_at=CURRENT_TIMESTAMP "
+        f"WHERE email='{sql_quote(email)}'"
+    )
+    print(f"password updated: {email}")
+
+
+def cmd_mailbox_passwd_self(args: argparse.Namespace) -> None:
+    email = args.email.lower()
+    get_mailbox_id(email)
+    verify_mailbox_password(email, args.current_password)
     password_hash = hash_password(args.password)
     mysql(
         "UPDATE mailboxes "
@@ -359,6 +378,14 @@ def build_parser() -> argparse.ArgumentParser:
     mailbox_passwd.add_argument("email")
     mailbox_passwd.add_argument("--password", required=True)
     mailbox_passwd.set_defaults(func=cmd_mailbox_passwd)
+    mailbox_passwd_self = mailbox_sub.add_parser(
+        "passwd-self",
+        help="change mailbox password after validating the current password",
+    )
+    mailbox_passwd_self.add_argument("email")
+    mailbox_passwd_self.add_argument("--current-password", required=True)
+    mailbox_passwd_self.add_argument("--password", required=True)
+    mailbox_passwd_self.set_defaults(func=cmd_mailbox_passwd_self)
     mailbox_del = mailbox_sub.add_parser("del", help="remove a mailbox")
     mailbox_del.add_argument("email")
     mailbox_del.add_argument("--purge-files", action="store_true", help="delete mailbox files instead of archiving them")

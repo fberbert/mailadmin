@@ -32,10 +32,27 @@ function buildCommand(args: string[]) {
 
 async function runMailadmin(args: string[]) {
   const command = buildCommand(args);
-  const { stdout, stderr } = await execFileAsync(command.command, command.args, {
-    env: process.env,
-    maxBuffer: 10 * 1024 * 1024,
-  });
+  let stdout = "";
+  let stderr = "";
+
+  try {
+    const result = await execFileAsync(command.command, command.args, {
+      env: process.env,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    stdout = result.stdout;
+    stderr = result.stderr;
+  } catch (error) {
+    const message =
+      error instanceof Error && "stderr" in error && typeof error.stderr === "string" && error.stderr.trim()
+        ? error.stderr.trim()
+        : error instanceof Error && "stdout" in error && typeof error.stdout === "string" && error.stdout.trim()
+          ? error.stdout.trim()
+          : error instanceof Error
+            ? error.message
+            : "mailadmin command failed";
+    throw new Error(message.replace(/^error:\s*/i, ""));
+  }
 
   if (stderr.trim()) {
     console.warn(stderr.trim());
@@ -141,6 +158,18 @@ export const cliProvider: MailAdminProvider = {
 
   async updateMailboxPassword({ email, password }) {
     await runMailadmin(["mailbox", "passwd", email, "--password", password]);
+  },
+
+  async changeMailboxPasswordSelf({ email, currentPassword, newPassword }) {
+    await runMailadmin([
+      "mailbox",
+      "passwd-self",
+      email,
+      "--current-password",
+      currentPassword,
+      "--password",
+      newPassword,
+    ]);
   },
 
   async deleteMailbox({ email }) {

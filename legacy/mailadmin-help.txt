@@ -117,6 +117,12 @@ Trocar senha:
 sudo mailadmin mailbox passwd fabio@vivaolinux.com.br --password 'novaSenha'
 ```
 
+Trocar senha validando a senha atual da mailbox:
+
+```bash
+sudo mailadmin mailbox passwd-self fabio@vivaolinux.com.br --current-password 'senha-atual' --password 'senha-nova'
+```
+
 Remover mailbox:
 
 ```bash
