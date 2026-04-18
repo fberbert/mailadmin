@@ -172,6 +172,169 @@ O utilitário original do `five` foi copiado para:
 
 Ele está no repositório como referência operacional e para alimentar o provider `cli`.
 
+## Trazer um domínio para o `five`
+
+O `mailadmin` resolve a parte interna do mail server:
+
+- domínio ativo no banco
+- mailbox(es)
+- aliases
+- sender ACL
+
+O DNS continua sendo responsabilidade operacional externa ao painel.
+
+### Ordem recomendada
+
+1. adicionar o domínio no backend do mail server
+2. criar a mailbox principal
+3. criar aliases operacionais (`postmaster`, `abuse`, `dmarc`, `contato`)
+4. gerar/publicar DKIM
+5. publicar `MX`, `SPF` e `DMARC`
+6. validar com `dig`, `exim -bt` e um envio real
+
+### 1. Cadastrar o domínio e a mailbox
+
+No `five`:
+
+```bash
+sudo mailadmin domain add example.com
+sudo mailadmin mailbox add fabio@example.com --password 'senha-temporaria'
+sudo mailadmin alias add postmaster@example.com fabio@example.com --allow-send fabio@example.com
+sudo mailadmin alias add abuse@example.com fabio@example.com --allow-send fabio@example.com
+sudo mailadmin alias add dmarc@example.com fabio@example.com --allow-send fabio@example.com
+sudo mailadmin alias add contato@example.com fabio@example.com --allow-send fabio@example.com
+```
+
+Observação importante:
+
+- no estado atual do `five`, o Exim usa o banco `mailserver` como fonte de verdade para domínios virtuais
+- `dc_other_hostnames` não precisa ser sincronizado por domínio
+
+### 2. Gerar DKIM no `five`
+
+O Exim do `five` usa o seletor `mail2026` e o mapa:
+
+- `/etc/exim4/dkim/privatekey.map`
+
+Fluxo sugerido para um domínio novo:
+
+```bash
+sudo install -d -m 750 -o root -g Debian-exim /etc/exim4/dkim/example.com
+sudo openssl genrsa -out /etc/exim4/dkim/example.com/mail2026.private 2048
+sudo openssl rsa -in /etc/exim4/dkim/example.com/mail2026.private -pubout -out /etc/exim4/dkim/example.com/mail2026.public
+sudo chown root:Debian-exim /etc/exim4/dkim/example.com/mail2026.private
+sudo chmod 640 /etc/exim4/dkim/example.com/mail2026.private
+sudo sh -c \"grep -q '^example.com:' /etc/exim4/dkim/privatekey.map || printf '%s: %s\\n' 'example.com' '/etc/exim4/dkim/example.com/mail2026.private' >> /etc/exim4/dkim/privatekey.map\"
+sudo systemctl reload exim4
+```
+
+Extrair a chave pública para publicar no DNS:
+
+```bash
+sudo awk 'NF && $0 !~ /BEGIN PUBLIC KEY|END PUBLIC KEY/ { printf \"%s\", $0 }' /etc/exim4/dkim/example.com/mail2026.public
+```
+
+O valor retornado entra no `p=` do TXT DKIM.
+
+### 3. Registros DNS mínimos
+
+Assumindo que o servidor de e-mail continua sendo o `five` em `52.35.188.239` e que os clientes vão usar `mail2.vivaolinux.com.br`:
+
+#### MX
+
+```dns
+example.com.  MX  10 mail2.vivaolinux.com.br.
+```
+
+#### SPF
+
+```dns
+example.com.  TXT  "v=spf1 ip4:52.35.188.239 -all"
+```
+
+#### DKIM
+
+```dns
+mail2026._domainkey.example.com.  TXT  "v=DKIM1; k=rsa; p=CHAVE_PUBLICA_AQUI"
+```
+
+#### DMARC
+
+Começo conservador:
+
+```dns
+_dmarc.example.com.  TXT  "v=DMARC1; p=none; adkim=s; aspf=s; pct=100; fo=1; rua=mailto:dmarc@example.com"
+```
+
+Depois de validar entrega/autenticação:
+
+```dns
+_dmarc.example.com.  TXT  "v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; fo=1; rua=mailto:dmarc@example.com"
+```
+
+### 4. O que apagar ao migrar de outro provedor
+
+Antes de fechar a migração, revise e remova:
+
+- `MX` antigo apontando para SES, Google Workspace, cPanel, etc.
+- múltiplos registros `SPF` no domínio raiz
+- `SPF` legado de `amazonses.com`, `sendgrid.net` ou outro serviço que não envia mais
+- `DKIM` legado de provedores que não estão mais em uso
+
+Regra importante:
+
+- o domínio raiz deve ter **um único SPF válido**
+
+### 5. Como consultar os registros com `dig`
+
+```bash
+dig +short MX example.com
+dig +short TXT example.com
+dig +short TXT mail2026._domainkey.example.com
+dig +short TXT _dmarc.example.com
+```
+
+Usando um resolvedor específico:
+
+```bash
+dig @8.8.8.8 +short TXT mail2026._domainkey.example.com
+dig @1.1.1.1 +short TXT _dmarc.example.com
+```
+
+### 6. Validação no servidor
+
+No `five`:
+
+```bash
+sudo mailadmin domain list
+sudo mailadmin mailbox list --domain example.com
+sudo mailadmin alias list --domain example.com
+sudo mailadmin sender-allow list fabio@example.com
+sudo doveadm auth test fabio@example.com
+sudo exim -bt fabio@example.com
+```
+
+Esperado:
+
+- `doveadm auth test` autentica a mailbox
+- `exim -bt fabio@example.com` cai em `virtual_mailboxes_sql`
+
+### 7. Validação de entrega
+
+Depois da propagação:
+
+1. envie um e-mail de `fabio@example.com` para Gmail ou Outlook
+2. confira no provedor de destino se:
+   - `SPF = PASS`
+   - `DKIM = PASS`
+   - `DMARC = PASS`
+
+### 8. Observações operacionais
+
+- o certificado TLS atual do servidor é de `mail2.vivaolinux.com.br`
+- por isso, os clientes devem usar `mail2.vivaolinux.com.br` em IMAP/SMTP
+- não é recomendado publicar `mail.example.com` para cliente a menos que o certificado também cubra esse hostname
+
 ## Qualidade
 
 Checks locais:
