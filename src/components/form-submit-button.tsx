@@ -19,9 +19,9 @@ export function FormSubmitButton({
   const { pending } = useFormStatus();
 
   const variants = {
-    primary: "bg-stone-950 text-white hover:bg-stone-800",
-    secondary: "bg-stone-100 text-stone-900 hover:bg-stone-200",
-    danger: "bg-red-600 text-white hover:bg-red-500",
+    primary: { background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" },
+    secondary: { background: "var(--btn-secondary-bg)", color: "var(--btn-secondary-text)" },
+    danger: { background: "var(--danger)", color: "#fff" },
   };
 
   return (
@@ -30,9 +30,9 @@ export function FormSubmitButton({
       disabled={pending}
       className={cn(
         "inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70",
-        variants[variant],
         className,
       )}
+      style={variants[variant]}
     >
       {pending ? pendingLabel ?? children : children}
     </button>

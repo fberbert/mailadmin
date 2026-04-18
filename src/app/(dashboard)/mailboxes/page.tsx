@@ -8,6 +8,8 @@ import {
 } from "@/app/(dashboard)/actions";
 import {
   ActionIconButton,
+  Breadcrumb,
+  EmptyState,
   Field,
   FormActionSlot,
   PageHeader,
@@ -26,7 +28,7 @@ import { QuotaInput } from "@/components/quota-input";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { formatBytes } from "@/lib/utils";
-import { RotateCw } from "lucide-react";
+import { Mailbox, RotateCw } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -58,7 +60,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Mailboxes"
+        eyebrow={<Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Mailboxes" }]} />}
         title="Mailbox provisioning"
         description="Create mailbox identities, rotate passwords and inspect quotas. The primary sender ACL is created automatically."
       />
@@ -66,7 +68,7 @@ export default async function MailboxesPage({ searchParams }: Props) {
       <PageToast success={success} error={error} />
 
       <Surface>
-        <h2 className="text-lg font-semibold text-stone-950">Create mailbox</h2>
+        <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Create mailbox</h2>
         <form
           action={createMailboxAction}
           className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px]"
@@ -88,10 +90,10 @@ export default async function MailboxesPage({ searchParams }: Props) {
       </Surface>
 
       <Surface className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 border-b border-stone-200 px-6 py-5">
+        <div className="flex flex-col gap-4 border-b px-6 py-5" style={{ borderColor: "var(--border)" }}>
           <div>
-            <h2 className="text-lg font-semibold text-stone-950">Mailbox catalog</h2>
-            <p className="text-sm text-stone-500">{filteredMailboxes.length} filtered record(s)</p>
+            <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Mailbox catalog</h2>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{filteredMailboxes.length} filtered record(s)</p>
           </div>
           <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
@@ -115,71 +117,71 @@ export default async function MailboxesPage({ searchParams }: Props) {
           </form>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-stone-50 text-stone-500">
+          <table className="min-w-full text-left text-sm" data-striped>
+            <thead style={{ background: "var(--table-header-bg)", color: "var(--table-header-text)" }}>
               <tr>
-                <th className="px-6 py-3 font-medium">Mailbox</th>
-                <th className="px-6 py-3 font-medium">Domain</th>
-                <th className="px-6 py-3 font-medium">Quota</th>
-                <th className="px-6 py-3 font-medium">Sender ACL</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Settings</th>
-                <th className="px-6 py-3 font-medium">Password</th>
-                <th className="px-6 py-3 font-medium">Delete</th>
+                <th className="px-6 py-3 font-semibold">Mailbox</th>
+                <th className="px-6 py-3 font-semibold">Domain</th>
+                <th className="px-6 py-3 font-semibold">Quota</th>
+                <th className="px-6 py-3 font-semibold">Sender ACL</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginated.items.map((mailbox) => (
-                <tr key={mailbox.id} className="border-t border-stone-200 align-top transition-colors hover:bg-stone-50/80">
-                  <td className="px-6 py-4 font-medium text-stone-900">{mailbox.email}</td>
-                  <td className="px-6 py-4 text-stone-600">{mailbox.domainName}</td>
-                  <td className="px-6 py-4 text-stone-600">{formatBytes(mailbox.quotaBytes)}</td>
-                  <td className="px-6 py-4 text-stone-600">{mailbox.senderCount}</td>
+                <tr key={mailbox.id} className="border-t align-top transition-colors" style={{ borderColor: "var(--border)" }}>
+                  <td className="px-6 py-4 font-medium" style={{ color: "var(--text-primary)" }}>{mailbox.email}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>{mailbox.domainName}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>{formatBytes(mailbox.quotaBytes)}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>{mailbox.senderCount}</td>
                   <td className="px-6 py-4">
                     <StatusPill active={mailbox.active} />
                   </td>
                   <td className="px-6 py-4">
-                    <EditMailboxAction
-                      action={updateMailboxAction}
-                      email={mailbox.email}
-                      active={mailbox.active}
-                      quotaBytes={mailbox.quotaBytes}
-                      returnTo={currentHref}
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <form action={updateMailboxPasswordAction} className="flex min-w-60 gap-2">
-                      <input type="hidden" name="returnTo" value={currentHref} />
-                      <input type="hidden" name="email" value={mailbox.email} />
-                      <PasswordInput
-                        name="password"
-                        placeholder="new password"
-                        className="h-10 flex-1 rounded-xl"
-                        required
+                    <div className="flex flex-wrap items-start gap-2">
+                      <EditMailboxAction
+                        action={updateMailboxAction}
+                        email={mailbox.email}
+                        active={mailbox.active}
+                        quotaBytes={mailbox.quotaBytes}
+                        returnTo={currentHref}
                       />
-                      <ActionIconButton label={`Rotate password for ${mailbox.email}`}>
-                        <RotateCw className="size-4" />
-                      </ActionIconButton>
-                    </form>
-                  </td>
-                  <td className="px-6 py-4">
-                    <ConfirmDeleteAction
-                      action={deleteMailboxAction}
-                      title={`Delete mailbox ${mailbox.email}?`}
-                      description="This removes the mailbox from the panel and revokes its authenticated access."
-                      confirmLabel="Delete mailbox"
-                      fields={[
-                        { name: "returnTo", value: currentHref },
-                        { name: "email", value: mailbox.email },
-                      ]}
-                    />
+                      <form action={updateMailboxPasswordAction} className="flex min-w-60 gap-2">
+                        <input type="hidden" name="returnTo" value={currentHref} />
+                        <input type="hidden" name="email" value={mailbox.email} />
+                        <PasswordInput
+                          name="password"
+                          placeholder="new password"
+                          className="h-10 flex-1 rounded-xl"
+                          required
+                        />
+                        <ActionIconButton label={`Rotate password for ${mailbox.email}`}>
+                          <RotateCw className="size-4" />
+                        </ActionIconButton>
+                      </form>
+                      <ConfirmDeleteAction
+                        action={deleteMailboxAction}
+                        title={`Delete mailbox ${mailbox.email}?`}
+                        description="This removes the mailbox from the panel and revokes its authenticated access."
+                        confirmLabel="Delete mailbox"
+                        fields={[
+                          { name: "returnTo", value: currentHref },
+                          { name: "email", value: mailbox.email },
+                        ]}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
               {paginated.items.length === 0 ? (
-                <tr className="border-t border-stone-200">
-                  <td colSpan={8} className="px-6 py-10 text-center text-stone-500">
-                    No mailboxes matched the current filters.
+                <tr className="border-t" style={{ borderColor: "var(--border)" }}>
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={Mailbox}
+                      title="No mailboxes found"
+                      description="No mailboxes matched the current filters. Try adjusting your search or create a new mailbox above."
+                    />
                   </td>
                 </tr>
               ) : null}

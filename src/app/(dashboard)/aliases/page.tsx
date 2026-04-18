@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { createAliasAction, deleteAliasAction } from "@/app/(dashboard)/actions";
 import {
+  Breadcrumb,
+  EmptyState,
   Field,
   FormActionSlot,
   PageHeader,
@@ -16,6 +18,7 @@ import { ConfirmDeleteAction } from "@/components/confirm-delete-action";
 import { getMailAdminProvider } from "@/lib/mailadmin";
 import { buildListHref, paginateItems, readListParams } from "@/lib/search-params";
 import { PageToast } from "@/components/page-toast";
+import { Workflow } from "lucide-react";
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -52,7 +55,7 @@ export default async function AliasesPage({ searchParams }: Props) {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Aliases"
+        eyebrow={<Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Aliases" }]} />}
         title="Inbound alias routing"
         description="Manage source addresses and delivery targets. Optionally add the alias as an extra send-as identity for a mailbox."
       />
@@ -60,7 +63,7 @@ export default async function AliasesPage({ searchParams }: Props) {
       <PageToast success={success} error={error} />
 
       <Surface>
-        <h2 className="text-lg font-semibold text-stone-950">Create alias</h2>
+        <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Create alias</h2>
         <form action={createAliasAction} className="mt-5 grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px]">
           <input type="hidden" name="returnTo" value={currentHref} />
           <Field label="Source email" htmlFor="source-email">
@@ -74,7 +77,12 @@ export default async function AliasesPage({ searchParams }: Props) {
               id="allow-send"
               name="allowSendMailbox"
               list="mailbox-options"
-              className="h-11 rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100"
+              className="h-11 rounded-2xl border px-4 text-sm outline-none transition focus:ring-4"
+              style={{
+                background: "var(--input-bg)",
+                borderColor: "var(--input-border)",
+                color: "var(--text-primary)",
+              }}
               placeholder="fabio@example.com"
             />
             <datalist id="mailbox-options">
@@ -90,10 +98,10 @@ export default async function AliasesPage({ searchParams }: Props) {
       </Surface>
 
       <Surface className="overflow-hidden p-0">
-        <div className="flex flex-col gap-4 border-b border-stone-200 px-6 py-5">
+        <div className="flex flex-col gap-4 border-b px-6 py-5" style={{ borderColor: "var(--border)" }}>
           <div>
-            <h2 className="text-lg font-semibold text-stone-950">Alias catalog</h2>
-            <p className="text-sm text-stone-500">{filteredAliases.length} filtered record(s)</p>
+            <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Alias catalog</h2>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{filteredAliases.length} filtered record(s)</p>
           </div>
           <form className="grid items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)_120px]">
             <Field label="Domain" htmlFor="domain-filter">
@@ -117,22 +125,22 @@ export default async function AliasesPage({ searchParams }: Props) {
           </form>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-stone-50 text-stone-500">
+          <table className="min-w-full text-left text-sm" data-striped>
+            <thead style={{ background: "var(--table-header-bg)", color: "var(--table-header-text)" }}>
               <tr>
-                <th className="px-6 py-3 font-medium">Source</th>
-                <th className="px-6 py-3 font-medium">Destination</th>
-                <th className="px-6 py-3 font-medium">Domain</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Actions</th>
+                <th className="px-6 py-3 font-semibold">Source</th>
+                <th className="px-6 py-3 font-semibold">Destination</th>
+                <th className="px-6 py-3 font-semibold">Domain</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginated.items.map((alias) => (
-                <tr key={alias.id} className="border-t border-stone-200 transition-colors hover:bg-stone-50/80">
-                  <td className="px-6 py-4 font-medium text-stone-900">{alias.sourceEmail}</td>
-                  <td className="px-6 py-4 text-stone-600">{alias.destination}</td>
-                  <td className="px-6 py-4 text-stone-600">{alias.domainName}</td>
+                <tr key={alias.id} className="border-t transition-colors" style={{ borderColor: "var(--border)" }}>
+                  <td className="px-6 py-4 font-medium" style={{ color: "var(--text-primary)" }}>{alias.sourceEmail}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>{alias.destination}</td>
+                  <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>{alias.domainName}</td>
                   <td className="px-6 py-4">
                     <StatusPill active={alias.active} />
                   </td>
@@ -151,9 +159,13 @@ export default async function AliasesPage({ searchParams }: Props) {
                 </tr>
               ))}
               {paginated.items.length === 0 ? (
-                <tr className="border-t border-stone-200">
-                  <td colSpan={5} className="px-6 py-10 text-center text-stone-500">
-                    No aliases matched the current filters.
+                <tr className="border-t" style={{ borderColor: "var(--border)" }}>
+                  <td colSpan={5}>
+                    <EmptyState
+                      icon={Workflow}
+                      title="No aliases found"
+                      description="No aliases matched the current filters. Try adjusting your search or create a new alias above."
+                    />
                   </td>
                 </tr>
               ) : null}

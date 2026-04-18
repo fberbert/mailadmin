@@ -4,27 +4,57 @@ import type { InputHTMLAttributes, ReactNode } from "react";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { cn } from "@/lib/utils";
 
+type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
+export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
+  return (
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.24em]">
+      {items.map((item, i) => (
+        <span key={item.label} className="flex items-center gap-1.5">
+          {i > 0 ? (
+            <span aria-hidden style={{ color: "var(--text-faint)" }}>/</span>
+          ) : null}
+          {item.href ? (
+            <Link
+              href={item.href}
+              className="transition hover:underline"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span style={{ color: "var(--accent-text)" }}>{item.label}</span>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
 export function PageHeader({
   eyebrow,
   title,
   description,
   action,
 }: {
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
   description?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-stone-200/80 pb-6 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-4 pb-6 md:flex-row md:items-end md:justify-between" style={{ borderBottom: "1px solid var(--border)" }}>
       <div className="space-y-2">
         {eyebrow ? (
-          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-700">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em]" style={{ color: "var(--accent-text)" }}>
             {eyebrow}
           </div>
         ) : null}
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{title}</h1>
-        {description ? <p className="max-w-3xl text-sm leading-6 text-stone-600">{description}</p> : null}
+        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>{title}</h1>
+        {description ? <p className="max-w-3xl text-sm leading-6" style={{ color: "var(--text-secondary)" }}>{description}</p> : null}
       </div>
       {action}
     </div>
@@ -41,9 +71,14 @@ export function Surface({
   return (
     <section
       className={cn(
-        "panel-reveal rounded-3xl border border-stone-200 bg-white/90 p-6 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_24px_80px_rgba(28,25,23,0.08)]",
+        "panel-reveal rounded-3xl border p-6",
         className,
       )}
+      style={{
+        borderColor: "var(--border)",
+        background: "var(--surface-raised)",
+        boxShadow: "var(--shadow-card)",
+      }}
     >
       {children}
     </section>
@@ -58,7 +93,7 @@ export function FormActionSlot({
   className?: string;
 }) {
   return (
-    <div className={cn("grid self-start gap-2 text-sm font-medium text-stone-800", className)}>
+    <div className={cn("grid self-start gap-2 text-sm font-medium", className)} style={{ color: "var(--text-secondary)" }}>
       <span className="invisible select-none">Action</span>
       {children}
       <span className="min-h-4 text-xs font-normal invisible">helper text</span>
@@ -77,9 +112,9 @@ export function StatCard({
 }) {
   return (
     <Surface className="card-hover p-5">
-      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{label}</div>
-      <div className="mt-3 text-3xl font-semibold text-stone-950">{value}</div>
-      {hint ? <div className="mt-2 text-sm text-stone-600">{hint}</div> : null}
+      <div className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: "var(--text-muted)" }}>{label}</div>
+      <div className="mt-3 text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>{value}</div>
+      {hint ? <div className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>{hint}</div> : null}
     </Surface>
   );
 }
@@ -87,10 +122,12 @@ export function StatCard({
 export function StatusPill({ active }: { active: boolean }) {
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
-        active ? "bg-emerald-100 text-emerald-800" : "bg-stone-200 text-stone-700",
-      )}
+      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+      style={
+        active
+          ? { background: "var(--success-bg)", color: "var(--success-text)", border: "1px solid var(--success-border)" }
+          : { background: "var(--surface-muted)", color: "var(--text-muted)", border: "1px solid var(--border)" }
+      }
     >
       {active ? "active" : "inactive"}
     </span>
@@ -109,10 +146,10 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-stone-800" htmlFor={htmlFor}>
+    <label className="grid gap-2 text-sm font-medium" style={{ color: "var(--text-secondary)" }} htmlFor={htmlFor}>
       <span>{label}</span>
       {children}
-      <span className={cn("min-h-4 text-xs font-normal", hint ? "text-stone-500" : "invisible")}>
+      <span className={cn("min-h-4 text-xs font-normal", hint ? "" : "invisible")} style={{ color: "var(--text-muted)" }}>
         {hint ?? "helper text"}
       </span>
     </label>
@@ -124,9 +161,15 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "h-11 rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100",
+        "h-11 rounded-2xl border px-4 text-sm outline-none transition focus:ring-4",
         props.className,
       )}
+      style={{
+        background: "var(--input-bg)",
+        borderColor: "var(--input-border)",
+        color: "var(--text-primary)",
+        ...({ "--tw-ring-color": "var(--ring)" } as React.CSSProperties),
+      }}
     />
   );
 }
@@ -140,9 +183,15 @@ export function SelectInput({
     <select
       {...props}
       className={cn(
-        "h-11 rounded-2xl border border-stone-300 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100",
+        "h-11 rounded-2xl border px-4 text-sm outline-none transition focus:ring-4",
         className,
       )}
+      style={{
+        background: "var(--input-bg)",
+        borderColor: "var(--input-border)",
+        color: "var(--text-primary)",
+        ...({ "--tw-ring-color": "var(--ring)" } as React.CSSProperties),
+      }}
     >
       {children}
     </select>
@@ -179,9 +228,9 @@ export function ActionIconButton({
   className?: string;
 }) {
   const variants = {
-    primary: "bg-stone-950 text-white hover:bg-stone-800",
-    secondary: "bg-stone-100 text-stone-900 hover:bg-stone-200",
-    danger: "bg-red-600 text-white hover:bg-red-500",
+    primary: { background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" },
+    secondary: { background: "var(--btn-secondary-bg)", color: "var(--text-primary)" },
+    danger: { background: "var(--danger)", color: "#fff" },
   };
 
   return (
@@ -189,11 +238,11 @@ export function ActionIconButton({
       type="submit"
       aria-label={label}
       title={label}
-        className={cn(
+      className={cn(
         "inline-flex size-10 cursor-pointer items-center justify-center rounded-xl text-sm font-semibold transition disabled:cursor-not-allowed",
-        variants[variant],
         className,
       )}
+      style={variants[variant]}
     >
       {children}
       <span className="sr-only">{label}</span>
@@ -209,13 +258,13 @@ export function Notice({
   children: ReactNode;
 }) {
   const tones = {
-    info: "border-sky-200 bg-sky-50 text-sky-900",
-    success: "border-emerald-200 bg-emerald-50 text-emerald-900",
-    error: "border-red-200 bg-red-50 text-red-900",
+    info: { background: "var(--info-bg)", color: "var(--info-text)", borderColor: "var(--info-border)" },
+    success: { background: "var(--success-bg)", color: "var(--success-text)", borderColor: "var(--success-border)" },
+    error: { background: "var(--danger-bg)", color: "var(--danger-text)", borderColor: "var(--danger-border)" },
   };
 
   return (
-    <div className={cn("rounded-2xl border px-4 py-3 text-sm", tones[tone])}>
+    <div className="rounded-2xl border px-4 py-3 text-sm" style={tones[tone]}>
       {children}
     </div>
   );
@@ -223,10 +272,52 @@ export function Notice({
 
 export function MiniLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="cursor-pointer text-sm font-medium text-amber-700 transition hover:text-amber-800">
+    <Link href={href} className="cursor-pointer text-sm font-medium transition" style={{ color: "var(--accent-text)" }}>
       {children}
     </Link>
   );
+}
+
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+      <div
+        className="flex size-12 items-center justify-center rounded-2xl"
+        style={{ background: "var(--surface-muted)", color: "var(--text-faint)" }}
+      >
+        <Icon className="size-5" />
+      </div>
+      <div className="text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>{title}</div>
+      {description ? <p className="max-w-sm text-sm leading-6" style={{ color: "var(--text-muted)" }}>{description}</p> : null}
+      {action}
+    </div>
+  );
+}
+
+function buildPageRange(current: number, total: number): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages: (number | "ellipsis")[] = [1];
+
+  if (current <= 4) {
+    pages.push(2, 3, 4, 5, "ellipsis", total);
+  } else if (current >= total - 3) {
+    pages.push("ellipsis", total - 4, total - 3, total - 2, total - 1, total);
+  } else {
+    pages.push("ellipsis", current - 1, current, current + 1, "ellipsis", total);
+  }
+
+  return pages;
 }
 
 export function PaginationNav({
@@ -244,11 +335,11 @@ export function PaginationNav({
     return null;
   }
 
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = buildPageRange(currentPage, totalPages);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 px-6 py-4">
-      <div className="text-sm text-stone-500">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4" style={{ borderColor: "var(--border)" }}>
+      <div className="text-sm" style={{ color: "var(--text-muted)" }}>
         Page {currentPage} of {totalPages}
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -256,35 +347,51 @@ export function PaginationNav({
           href={buildHref(Math.max(1, currentPage - 1))}
           className={cn(
             "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
-            currentPage === 1
-              ? "pointer-events-none bg-stone-100 text-stone-400"
-              : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
+            currentPage === 1 ? "pointer-events-none" : "cursor-pointer",
           )}
+          style={
+            currentPage === 1
+              ? { background: "var(--btn-secondary-bg)", color: "var(--text-faint)" }
+              : { background: "var(--btn-secondary-bg)", color: "var(--text-primary)" }
+          }
         >
           Previous
         </Link>
-        {pages.map((page) => (
-          <Link
-            key={`${pathname}-${page}`}
-            href={buildHref(page)}
-            className={cn(
-              "inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
-              page === currentPage
-                ? "bg-stone-950 text-white"
-                : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
-            )}
-          >
-            {page}
-          </Link>
-        ))}
+        {pages.map((page, idx) =>
+          page === "ellipsis" ? (
+            <span
+              key={`ellipsis-${idx}`}
+              className="inline-flex h-10 min-w-10 items-center justify-center text-sm"
+              style={{ color: "var(--text-faint)" }}
+            >
+              &hellip;
+            </span>
+          ) : (
+            <Link
+              key={`${pathname}-${page}`}
+              href={buildHref(page)}
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition"
+              style={
+                page === currentPage
+                  ? { background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" }
+                  : { background: "var(--btn-secondary-bg)", color: "var(--text-primary)" }
+              }
+            >
+              {page}
+            </Link>
+          ),
+        )}
         <Link
           href={buildHref(Math.min(totalPages, currentPage + 1))}
           className={cn(
             "inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-medium transition",
-            currentPage === totalPages
-              ? "pointer-events-none bg-stone-100 text-stone-400"
-              : "cursor-pointer bg-stone-100 text-stone-900 hover:bg-stone-200",
+            currentPage === totalPages ? "pointer-events-none" : "cursor-pointer",
           )}
+          style={
+            currentPage === totalPages
+              ? { background: "var(--btn-secondary-bg)", color: "var(--text-faint)" }
+              : { background: "var(--btn-secondary-bg)", color: "var(--text-primary)" }
+          }
         >
           Next
         </Link>

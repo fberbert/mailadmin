@@ -16,9 +16,15 @@ export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement>) {
         {...props}
         type={visible ? "text" : "password"}
         className={cn(
-          "h-11 w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 pr-12 text-sm text-stone-950 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100",
+          "h-11 w-full rounded-2xl border px-4 pr-12 text-sm outline-none transition focus:ring-4",
           props.className,
         )}
+        style={{
+          background: "var(--input-bg)",
+          borderColor: "var(--input-border)",
+          color: "var(--text-primary)",
+          ...({ "--tw-ring-color": "var(--ring)" } as React.CSSProperties),
+        }}
       />
       <button
         id={buttonId}
@@ -26,7 +32,8 @@ export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement>) {
         aria-label={visible ? "Hide password" : "Show password"}
         title={visible ? "Hide password" : "Show password"}
         onClick={() => setVisible((current) => !current)}
-        className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-stone-500 transition hover:text-stone-900"
+        className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center transition"
+        style={{ color: "var(--text-muted)" }}
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>

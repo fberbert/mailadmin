@@ -77,15 +77,16 @@ export function PageToast({
   return (
     <div className="pointer-events-none fixed right-5 top-5 z-50 flex w-full max-w-sm flex-col gap-3">
       {items.map((item) => {
-        const toneClasses =
+        const toneStyle =
           item.tone === "success"
-            ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-            : "border-red-200 bg-red-50 text-red-950";
+            ? { background: "var(--success-bg)", color: "var(--success-text)", borderColor: "var(--success-border)" }
+            : { background: "var(--danger-bg)", color: "var(--danger-text)", borderColor: "var(--danger-border)" };
 
         return (
           <div
             key={item.id}
-            className={`pointer-events-auto panel-reveal rounded-2xl border px-4 py-3 shadow-lg ${toneClasses}`}
+            className="pointer-events-auto panel-reveal rounded-2xl border px-4 py-3"
+            style={{ ...toneStyle, boxShadow: "var(--shadow-hover)" }}
           >
             <div className="flex items-start gap-3">
               <div className="pt-0.5">
@@ -105,7 +106,7 @@ export function PageToast({
                 type="button"
                 aria-label="Dismiss notification"
                 onClick={() => setDismissedIds((current) => [...current, item.id])}
-                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl transition hover:bg-black/5"
+                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl transition hover:opacity-70"
               >
                 <X className="size-4" />
               </button>
