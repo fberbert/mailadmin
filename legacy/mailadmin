@@ -13,7 +13,6 @@ DB_NAME = "mailserver"
 VMAIL_USER = "vmail"
 VMAIL_GROUP = "vmail"
 VHOSTS_ROOT = Path("/var/mail/vhosts")
-EXIM_UPDATE_CONF = Path("/etc/exim4/update-exim4.conf.conf")
 
 
 def die(message: str, code: int = 1) -> None:
@@ -62,43 +61,6 @@ def hash_password(password: str) -> str:
     if proc.returncode != 0:
         die(proc.stderr.strip() or "failed to hash password")
     return proc.stdout.strip()
-
-
-def sync_exim_local_domain(domain: str, *, present: bool) -> None:
-    if not EXIM_UPDATE_CONF.exists():
-        die(f"missing exim config file: {EXIM_UPDATE_CONF}")
-
-    lines = EXIM_UPDATE_CONF.read_text().splitlines()
-    updated: list[str] = []
-    changed = False
-
-    for line in lines:
-        if not line.startswith("dc_other_hostnames="):
-            updated.append(line)
-            continue
-
-        prefix, value = line.split("=", 1)
-        raw = value.strip()
-        if len(raw) < 2 or raw[0] != "'" or raw[-1] != "'":
-            die("unexpected dc_other_hostnames format in exim config")
-
-        items = [item.strip() for item in raw[1:-1].split(";") if item.strip()]
-        items_lower = [item.lower() for item in items]
-        domain = domain.lower()
-
-        if present and domain not in items_lower:
-            items.append(domain)
-            changed = True
-        if not present and domain in items_lower:
-            items = [item for item in items if item.lower() != domain]
-            changed = True
-
-        updated.append(f"{prefix}='{';'.join(items)}'")
-
-    if changed:
-        EXIM_UPDATE_CONF.write_text("\n".join(updated) + "\n")
-        run(["update-exim4.conf"], check=True)
-        run(["systemctl", "reload", "exim4"], check=True)
 
 
 def ensure_domain_dir(domain: str) -> Path:
@@ -184,7 +146,6 @@ def cmd_domain_add(args: argparse.Namespace) -> None:
         "ON DUPLICATE KEY UPDATE active=1, updated_at=CURRENT_TIMESTAMP"
     )
     ensure_domain_dir(domain)
-    sync_exim_local_domain(domain, present=True)
     print(f"domain ready: {domain}")
 
 
@@ -196,7 +157,6 @@ def cmd_domain_del(args: argparse.Namespace) -> None:
     if mailbox_count != "0" or alias_count != "0":
         die(f"domain {domain} still has {mailbox_count} mailbox(es) and {alias_count} alias(es)")
     mysql(f"DELETE FROM domains WHERE id={domain_id}")
-    sync_exim_local_domain(domain, present=False)
     domain_dir = VHOSTS_ROOT / domain
     if args.purge_dir and domain_dir.exists():
         shutil.rmtree(domain_dir)

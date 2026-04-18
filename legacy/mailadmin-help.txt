@@ -22,6 +22,12 @@ O script usa:
 - diretorio de mailboxes em `/var/mail/vhosts`
 - hash de senha via `doveadm pw -s SHA512-CRYPT`
 
+Fonte de verdade
+
+- dominios, mailboxes, aliases e sender ACL vivem no banco `mailserver`
+- o Exim consulta esses dados diretamente em runtime
+- `mailadmin` nao sincroniza mais `dc_other_hostnames` nem regrava a config do Exim
+
 
 Uso geral
 
@@ -52,6 +58,7 @@ Observacoes:
 
 - cria/garante o diretorio `/var/mail/vhosts/<dominio>`
 - reativa dominio se ele ja existir com `active=0`
+- ao marcar o dominio como ativo no banco, o Exim passa a tratá-lo como dominio hospedado
 
 Remover dominio:
 
@@ -246,6 +253,7 @@ sudo mailadmin mailbox del fabio@novo-dominio.com
 - `domain del` falha se ainda existirem mailboxes ou aliases
 - o script nao publica DNS
 - o script nao gera DKIM por dominio automaticamente
+- o Exim usa o banco como fonte de verdade para dominios virtuais; `dc_other_hostnames` nao precisa ser sincronizado por dominio
 
 
 7. O que verificar depois
@@ -259,4 +267,3 @@ sudo mailadmin sender-allow list fabio@vivaolinux.com.br
 sudo doveadm auth test fabio@vivaolinux.com.br
 sudo exim -bt fabio@vivaolinux.com.br
 ```
-
