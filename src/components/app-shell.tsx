@@ -64,11 +64,15 @@ function SidebarContent({
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
-                active ? "text-[var(--text-primary)]" : "hover:text-white",
+                active ? "" : "hover:text-white",
               )}
               style={
                 active
-                  ? { background: "var(--sidebar-active)", boxShadow: "var(--shadow-active)" }
+                  ? {
+                      background: "var(--btn-primary-bg)",
+                      color: "var(--btn-primary-text)",
+                      boxShadow: "var(--shadow-active)",
+                    }
                   : { color: "var(--sidebar-muted)" }
               }
               onMouseEnter={(e) => {
