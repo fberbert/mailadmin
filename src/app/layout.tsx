@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "mailadmin panel",
   description: "Administrative panel for domains, mailboxes, aliases and sender ACLs.",
+  openGraph: {
+    title: "mailadmin panel",
+    description: "Domain, mailbox and policy management — all in one place.",
+    siteName: "mailadmin panel",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "mailadmin panel",
+    description: "Domain, mailbox and policy management — all in one place.",
+  },
 };
 
 export default function RootLayout({
