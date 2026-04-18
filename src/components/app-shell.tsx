@@ -34,7 +34,10 @@ function SidebarContent({
   return (
     <>
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex size-12 items-center justify-center rounded-2xl text-[var(--text-primary)]" style={{ background: "var(--accent)" }}>
+        <div
+          className="flex size-12 items-center justify-center rounded-2xl"
+          style={{ background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" }}
+        >
           <KeyRound className="size-5" />
         </div>
         <div className="flex-1">
@@ -149,7 +152,10 @@ export function AppShell({
           <Menu className="size-5" />
         </button>
         <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-xl text-[var(--text-primary)]" style={{ background: "var(--accent)" }}>
+          <div
+            className="flex size-8 items-center justify-center rounded-xl"
+            style={{ background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" }}
+          >
             <KeyRound className="size-3.5" />
           </div>
           <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>mailadmin panel</span>

@@ -27,7 +27,10 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at top left, rgba(251,191,36,0.28), transparent 28%), radial-gradient(circle at bottom right, rgba(251,191,36,0.18), transparent 24%)" }} />
           <div className="relative flex h-full flex-col justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-2xl" style={{ background: "var(--accent)", color: "var(--text-primary)" }}>
+              <div
+                className="flex size-12 items-center justify-center rounded-2xl"
+                style={{ background: "var(--btn-primary-bg)", color: "var(--btn-primary-text)" }}
+              >
                 <KeyRound className="size-5" />
               </div>
               <div>
